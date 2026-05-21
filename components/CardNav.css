@@ -1,0 +1,278 @@
+.card-nav-container {
+  position: fixed;
+  top: 1.5em;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 900px;
+  z-index: 9999;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.card-nav {
+  display: block;
+  height: auto;
+  padding: 0;
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.card-nav-top {
+  position: relative;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.45rem 0.55rem 1.1rem;
+  z-index: 2;
+}
+
+.hamburger-menu {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 0 10px;
+  color: var(--maroon);
+}
+
+.hamburger-menu:hover .hamburger-line {
+  opacity: 0.75;
+}
+
+.hamburger-line {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background-color: currentColor;
+  border-radius: 1px;
+  transition:
+    transform 0.25s ease,
+    opacity 0.2s ease;
+  transform-origin: 50% 50%;
+}
+
+.hamburger-menu.open .hamburger-line:first-child {
+  transform: translateY(4px) rotate(45deg);
+}
+
+.hamburger-menu.open .hamburger-line:last-child {
+  transform: translateY(-4px) rotate(-45deg);
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  text-decoration: none;
+}
+
+.logo-container:hover {
+  opacity: 0.85;
+}
+
+.logo-img-wrap {
+  width: 32px;
+  height: 32px;
+  margin-right: 8px;
+  overflow: hidden;
+  border-radius: 4px;
+  position: relative;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.logo-name {
+  font-family: var(--font-teko);
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.05em;
+  color: var(--maroon);
+}
+
+.logo-sub {
+  font-family: var(--font-ins-sans);
+  font-size: 8px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gray);
+}
+
+.card-nav-cta-button {
+  background-color: var(--maroon);
+  color: var(--manjal);
+  border: none;
+  border-radius: 100px;
+  padding: 0 20px;
+  height: 100%;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  font-family: var(--font-teko);
+  font-size: 16px;
+  letter-spacing: 0.05em;
+}
+
+.card-nav-cta-button:hover {
+  transform: scale(1.02);
+}
+
+.card-nav-content {
+  position: relative;
+  z-index: 1;
+  padding: 0.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.card-nav-cards {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.nav-card {
+  height: 100%;
+  flex: 1 1 0;
+  min-width: 0;
+  border-radius: 0.5rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px;
+  gap: 8px;
+  user-select: none;
+}
+
+.nav-card-label {
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+  font-family: var(--font-teko);
+  text-transform: uppercase;
+}
+
+.nav-card-links {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-card-link {
+  font-size: 15px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.3s ease, transform 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--black);
+  font-weight: 500;
+  font-family: var(--font-ins-sans);
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+}
+
+.nav-card-link:hover {
+  opacity: 0.75;
+  transform: translateX(2px);
+}
+
+.nav-card-link-icon {
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+.lang-toggle-btn {
+  color: var(--maroon);
+  font-weight: 700;
+  background-color: var(--manjal);
+  padding: 6px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 14px;
+  font-family: var(--font-ins-sans);
+  transition: transform 0.2s ease;
+}
+
+.lang-toggle-btn:hover {
+  transform: scale(1.05);
+  opacity: 1;
+}
+
+.nav-card-lang {
+  border: 1px solid rgba(255, 202, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+  .card-nav-container {
+    width: 90%;
+    top: 1.2em;
+  }
+
+  .card-nav-top {
+    padding: 0.5rem 1rem;
+    justify-content: space-between;
+  }
+
+  .hamburger-menu {
+    order: 2;
+  }
+
+  .logo-container {
+    position: static;
+    transform: none;
+    order: 1;
+  }
+
+  .card-nav-cta-button {
+    display: none;
+  }
+
+  .card-nav-cards {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .nav-card {
+    height: auto;
+    min-height: 60px;
+    flex: 1 1 auto;
+    max-height: none;
+  }
+
+  .nav-card-label {
+    font-size: 18px;
+  }
+
+  .nav-card-link {
+    font-size: 15px;
+  }
+}
