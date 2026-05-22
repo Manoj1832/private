@@ -4,207 +4,874 @@
 
 ---
 
+## Table of Contents
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Routes & Pages](#routes--pages)
+- [Component Reference](#component-reference)
+- [Typography System](#typography-system)
+- [Design Tokens & Brand](#design-tokens--brand)
+- [Animation Reference](#animation-reference)
+- [Scenes (Sections) Breakdown](#scenes-sections-breakdown)
+- [Data Flow & State Management](#data-flow--state-management)
+- [Performance Optimizations](#performance-optimizations)
+- [SEO & Metadata](#seo--metadata)
+- [Accessibility](#accessibility)
+- [Deployment](#deployment)
+- [Recent Changes](#recent-changes)
+- [QA Checklist](#qa-checklist)
+
+---
+
 ## Tech Stack
 
 | Category | Technologies |
 |----------|-------------|
 | **Framework** | Next.js 16.2.6 (App Router, Turbopack) |
-| **UI** | React 19.2.4, TypeScript, Tailwind CSS v4 |
-| **Animations** | Framer Motion 12.40, Lenis 1.3 (smooth scroll) |
-| **Fonts** | Teko (headings), Instrument Sans (body), Noto Sans Tamil |
-| **Tooling** | ESLint (flat config), PostCSS |
+| **Language** | TypeScript 5.x |
+| **UI Library** | React 19.2.4 |
+| **Styling** | Tailwind CSS v4 |
+| **Animation** | Framer Motion 12.40 |
+| **Smooth Scroll** | Lenis 1.3.23 |
+| **Fonts** | Google Fonts via `next/font` + external link |
+| **Linting** | ESLint 9.x (flat config) |
+| **Build** | Next.js built-in (Turbopack dev, Webpack prod) |
 
 ---
 
 ## Project Structure
 
 ```
-app/                          # Next.js App Router pages
-├── globals.css               # Brand tokens, typography, utility classes, accessibility
-├── layout.tsx                # Root layout — SEO metadata, JSON-LD, fonts, providers
-├── page.tsx                  # Home — single-scroll landing with section dividers
-├── loading.tsx               # Loading state with VB monogram
-├── not-found.tsx             # 404 page with bilingual message
-├── about/page.tsx            # /about — biography & philosophy
-├── constituency/page.tsx     # /constituency — wards, map, works
-├── contact/page.tsx          # /contact — grievance form & office info
-├── gallery/page.tsx          # /gallery — media lightbox gallery
-└── updates/page.tsx          # /updates — accordion news feed
+app/
+├── globals.css                 # Root styles: brand tokens, typography, utilities, animations
+├── layout.tsx                  # Root layout: SEO metadata, JSON-LD structured data, fonts, providers
+├── page.tsx                    # Home landing page (lazy-loaded sections with SectionDivider)
+├── loading.tsx                 # Full-page loading state (VB monogram pulse)
+├── not-found.tsx               # 404 page (bilingual)
+├── about/page.tsx              # Full biography page
+├── constituency/page.tsx       # Constituency detail page
+├── contact/page.tsx            # Contact + grievance form page
+├── gallery/page.tsx            # Media gallery with lightbox
+└── updates/page.tsx            # News/updates feed with search
 
 components/
-├── CardNav.tsx / CardNav.css # Framer Motion card-style navbar (replaces old GSAP Navbar)
-├── SmoothScroll.tsx          # Lenis scroll engine provider
-├── HeroSection.tsx           # Minimal text hero — no portrait, gold accents, bounce scroll
-├── VictoryCard.tsx           # Animated election stats counter with pulsing gold ring
-├── AboutSection.tsx          # 3 bio cards (Born, Education, Minister role)
-├── Timeline.tsx              # Stepper-powered milestone timeline (auto-advance)
-├── Stepper.tsx / Stepper.css # Reusable stepper component with animated step indicators
-├── DistrictMap.tsx           # Tamil Nadu map + works tabs + concentric pulse rings
-├── AnnouncementsList.tsx     # Filterable announcement cards
-├── SocialFeed.tsx            # Social media follow cards (equal height columns)
-├── JoinSection.tsx           # CTA + grievance form (no WhatsApp)
-├── Icons.tsx                 # SVG icon set
-└── Footer.tsx                # 4-column footer (no WhatsApp, dark maroon, noise overlay)
+├── CardNav.tsx                 # Framer Motion card-style navigation bar
+├── CardNav.css                 # CardNav styles (rounded, shadow, hover/collapse)
+├── SmoothScroll.tsx            # Lenis smooth scroll provider
+├── HeroSection.tsx             # Hero scene: video/image bg, outlined title, name block, tagline, scroll indicator
+├── VictoryCard.tsx             # Election results: animated counters, opponent info, pulsing ring
+├── AboutSection.tsx            # Home about: portrait, bio text, 3 info cards (born, edu, role)
+├── Timeline.tsx                # Journey timeline: Stepper component with auto-advance
+├── Stepper.tsx                 # Reusable stepper: animated step dots, connecting lines, prev/next
+├── Stepper.css                 # Stepper layout + responsive styles
+├── DistrictMap.tsx             # Constituency: map image with pulse marker, area tags, works tabs
+├── AnnouncementsList.tsx       # Announcements: tab filter, date badges, hover reveal
+├── SocialFeed.tsx              # Social media: leader + party columns, follow links
+├── JoinSection.tsx             # CTA + contact form: dark bg, email card, form inputs
+├── Footer.tsx                  # Site footer: brand, links, socials, office hours, bottom bar
+├── Navbar.tsx                  # Old navbar (deprecated — CardNav replaces it)
+└── Icons.tsx                   # SVG icon set: birthday, graduation, building, document, etc.
 
 lib/
-├── data.ts                   # All static content & site configuration
-├── LanguageContext.tsx        # React context for EN/TA toggle
-└── translations.ts           # Full bilingual translation map
+├── data.ts                     # All static content: site config, election data, timeline, works, etc.
+├── LanguageContext.tsx          # React context + localStorage for EN/TA toggle
+└── translations.ts             # Complete bilingual translation map (EN + TA)
 
-public/                       # Static assets
-├── logo.png, cm-vijay-and-mla.jpeg, balaji-and-vijay-bokeh.jpeg
-├── background-video.mp4, background-get-in-touch.jpeg
-├── tamilnadu-districts-tvk-style.png, tvk-flag.png, vijay.jpeg
-├── robots.txt, sitemap.xml
+public/
+├── logo.png                    # TVK party logo
+├── cm-vijay-and-mla.jpeg       # Victory portrait (Hero mobile + VictoryCard)
+├── balaji-and-vijay-bokeh.jpeg # About section portrait
+├── background-video.mp4        # Hero background video (desktop)
+├── background-get-in-touch.jpeg# JoinSection background image
+├── tamilnadu-districts-tvk-style.png # Map illustration
+├── tvk-flag.png                # Party flag graphic
+├── vijay.jpeg                  # Additional portrait
+├── robots.txt                  # SEO: allow all, sitemap reference
+└── sitemap.xml                 # 6 URLs with priorities and change frequencies
+
+config/
+├── next.config.ts              # Next.js config: images, experimental, compression
+├── vercel.json                 # Vercel: region, headers, redirects, cache rules
+├── tailwind.config.ts          # Tailwind (if customized)
+├── tsconfig.json               # TypeScript config
+├── postcss.config.mjs          # PostCSS with Tailwind
+└── .gitignore                  # Ignore patterns
 ```
 
 ---
 
 ## Routes & Pages
 
-| Route | Type | Description |
-|-------|------|-------------|
-| `/` | Server → Client children | Landing — sections: Hero → Victory → About → Timeline → DistrictMap → Announcements → SocialFeed → Join → Footer |
-| `/about` | Client | Full biography, pull quote, philosophy cards, education & party role |
-| `/constituency` | Client | Map, ward grid, filterable works list |
-| `/gallery` | Client | Tab-filtered grid, custom lightbox |
-| `/contact` | Client | Office info, grievance form with localStorage |
-| `/updates` | Client | Tab filter + search, accordion cards, share, pagination |
-| `/404` | Server | Custom 404 with bilingual message |
+| Route | Render | Description |
+|-------|--------|-------------|
+| `/` | Server → Client Children | Single-scroll landing: 9 sections in order |
+| `/about` | Client | Full biography, pull quote, philosophy cards, education, party role |
+| `/constituency` | Client | Animated SVG map, ward grid, filterable works list, metric cards |
+| `/gallery` | Client | Tab-filtered grid (All/Campaigns/Visits/Events/Party), lightbox modal |
+| `/contact` | Client | Office info, grievance form with localStorage persistence |
+| `/updates` | Client | Tab filter + text search, accordion cards, share-to-clipboard, pagination |
+| `/404` | Server | Custom 404 with bilingual message and home button |
+| `/_not-found` | Server | Next.js internal not-found boundary |
 
 ---
 
-## Key Features
+## Component Reference
 
-### 🌐 Bilingual (English + Tamil)
-- Full Tamil translations via `LanguageContext` + `translations.ts`
-- Language persisted to `localStorage` (`vijaybalaji_lang`)
-- Dual font support: Noto Sans Tamil + Teko for Tamil, Instrument Sans for English
-- Toggle button in navbar shows opposite language label
+### CardNav.tsx (`"use client"`)
+The primary navigation bar. Replaces the old GSAP-based Navbar.
 
-### 📋 Grievance Portal
-- Homepage (simple) and `/contact` (full with ward/category dropdowns)
-- Categories: Road, Water, Health, Education, Welfare, Other
-- 6 Erode East wards
-- Submissions stored in `localStorage` under `vijaybalaji_grievances`
+**Features:**
+- Fixed position, centered card-style container (`pointer-events: none` wrapper, `pointer-events: auto` inner)
+- Logo (Image with `sizes="32px"`) + site name
+- Hamburger toggle (animated open/close lines via CSS classes)
+- `AnimatePresence`-powered expandable menu with 4 nav cards (About, Constituency, Updates, Contact)
+- Each card: unique background tint, colored label, clickable links
+- Language toggle card with `lang-toggle-btn`
+- Scroll lock when menu open (`document.body.style.overflow = "hidden"`)
+- Auto-closes on route change (pathname effect)
 
-### 🎨 Design System
-- **Brand Colors:** Maroon (`oklch(44.32% 0.181862 29.2339)`), Gold/Manjal (`#ffca00`), Dark Footer (`#1a0a0a`)
-- **Typography:** Teko (headings), Instrument Sans (body), Noto Sans Tamil (Tamil)
-- **Utility classes:** `.btn-primary`, `.btn-gold`, `.card`, `.tab-button`, `.victory-stat`, `.profile-card`
-- **Custom animations:** `pulse-gold`, `scroll-bounce`, smooth easing `[0.25, 0.46, 0.45, 0.94]`
+**States:**
+- Collapsed: logo + hamburger + CTA button visible
+- Expanded: 4 cards + language toggle animate in (staggered 0.06s delay)
+- Mobile: cards stack vertically, CTA button hidden
 
-### ✨ Animations (Framer Motion)
-- Viewport-triggered reveals with `useInView` (`once: true`)
-- Parallax scrolling on hero via `useScroll` + `useTransform`
-- Animated vote counters via `useMotionValue` + `animate`
-- `AnimatePresence` for CardNav menu
-- Pulsing gold ring on victory margin counter
-- Stepper with animated indicators and connecting lines
-- Concentric pulse rings on constituency map marker
-
-### 🗺️ SVG Maps
-- Hand-crafted Tamil Nadu outline with Erode East highlighted
-- Concentric ring animations on Erode marker
-- Ward badges with type color coding
-
-### 📊 Scroll Progress
-- Thin gradient bar at top of viewport (maroon → manjal)
-- Driven by `useScroll` from Framer Motion
+**Animations:**
+- Content wrapper: opacity fade (0.2s)
+- Cards: opacity + y translate (0.3s, staggered, custom ease `[0.25, 0.46, 0.45, 0.94]`)
+- Hamburger: CSS transform rotation (0.25s ease)
 
 ---
 
-## Recent Changes
+### HeroSection.tsx (`"use client"`)
+Full-screen hero with parallax, video/image background, and minimal text.
 
-| Change | Files |
-|--------|-------|
-| Removed WhatsApp | `data.ts`, `Footer.tsx`, `JoinSection.tsx`, `contact/page.tsx` |
-| Removed family bio card | `data.ts`, `translations.ts`, `AboutSection.tsx` |
-| New Hero (minimal, no portrait) | `HeroSection.tsx` |
-| New Footer (dark 4-col, noise) | `Footer.tsx` |
-| New CardNav (Framer Motion, no GSAP) | `CardNav.tsx`, `CardNav.css` |
-| Stepper integration | `Stepper.tsx`, `Stepper.css`, `Timeline.tsx` |
-| Titles updated to "Minister for Handlooms & Textiles" | `data.ts`, `translations.ts`, `HeroSection.tsx` |
-| Fixed Erode Tamil spelling (எரோடு → ஈரோடு) | All TS/TSX files |
-| SEO metadata + JSON-LD | `layout.tsx` |
-| Vercel deployment config | `vercel.json`, `.env.example` |
-| Performance: image sizes, lazy loading, cache headers | `next.config.ts`, `vercel.json` |
+**Features:**
+- 100vh with `minHeight: 600`
+- Parallax via `useScroll` + `useTransform` (bgY 0→30%, textY 0→15%, opacity 0→0.6)
+- Desktop: video background (`background-video.mp4`, brightness 0.35)
+- Mobile: image background (`cm-vijay-and-mla.jpeg`, brightness 0.35, md:hidden)
+- Gradient overlay: `rgba(26,5,6,0.7) → rgba(44,10,10,0.5) → rgba(26,5,6,0.85)`
+- Gold top line (1px gradient)
+- Animated gold rule (scaleX 0→1, 0.6s, delay 0.2s)
+- Outlined "ERODE EAST" title (text-transparent, WebkitTextStroke, clamp 3rem→10rem)
+- Two-line animated reveal (y 50→0, staggered 0.5s each)
+- Name block with gold dashes and centered name
+- Minister title in gold, "Tamil Nadu" subtitle
+- Italic tagline: "Serving Erode East. Shaping Tamil Nadu."
+- Bouncing scroll indicator (SVG arrow + text, animate y 0→6→0, 1.8s loop)
+
+**Text Values (bilingual):**
+- `hero_place_line1`: "ERODE" / "ஈரோடு"
+- `hero_name`: "M. Vijay Balaji" / "ம. விஜய் பாலாஜி"
+- `hero_role`: "Handlooms & Textiles Minister" / "கைத்தறி மற்றும் ஜவுளித்துறை அமைச்சர்"
+- `hero_scroll`: "SCROLL" / "கீழே"
+
+**Animations:**
+- Gold rule: scaleX 0→1 (0.6s, delay 0.2)
+- Place line 1: y 50→0 (0.5s, delay 0.3)
+- Place line 2: y 50→0 (0.5s, delay 0.45)
+- Name block: y 30→0 (0.6s, delay 0.65)
+- Tagline: y 20→0 (0.6s, delay 0.85)
+- Scroll indicator: opacity (delay 1.5s)
+- SVG arrow: y bounce [0, 6, 0] (1.8s, infinite)
+- Parallax: useScroll → useTransform on bgY, textY, opacity
 
 ---
 
-## Deployment
+### VictoryCard.tsx (`"use client"`)
+Election results section with animated counters.
 
-### Vercel
-- Automatic deploys from `main` branch
-- **Region:** Mumbai (`bom1`)
-- **Security headers:** X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy
-- **Cache:** 1 year immutable for static assets and images
+**Features:**
+- Gradient background: `marlot → maroon → marlot` (135deg)
+- Gold top/bottom decorative lines (gradient, transparent 10% → gold 50% → transparent 90%)
+- Election badge: gold text on gold-tinted background
+- Two-column layout: image left, stats right (reversed on mobile)
+- Image: `cm-vijay-and-mla.jpeg` with gold border + 4 corner accents (3px gold, 24px)
+- Stats grid: 3 columns (votes, margin with pulse, won)
 
-### Environment Variables
-```env
-NEXT_PUBLIC_SITE_URL=https://vijaybalajimla.in
-NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=  # Google Search Console
+**AnimatedCounter sub-component:**
+- `useMotionValue(0)` + `animate()` to target (2.2–2.5s, smoothEase)
+- `useInView` trigger (once, -100px margin)
+- `toLocaleString("en-IN")` formatting
+- Optional pulse: pulsing border ring (scale 1→1.15, opacity 0.3→0.1, 2.5s loop)
+
+**Opponent Info:**
+- Defeated badge: inline-flex with opponent name + party label (INC)
+- `rgba(255,255,255,0.12)` background, gold border
+
+**Data Sources:**
+- `electionData.votes` — total votes
+- `electionData.margin` — winning margin
+- `t.victory_won` — "WON" text
+- `t.victory_defeated` — "DEFEATED" prefix
+
+**Animations:**
+- Badge: y 30→0 (0.6s)
+- Image: opacity + scale 0.9→1 (0.8s, delay 0.4)
+- Stats: y 40→0 (0.7s, delay 0.2)
+- Opponent: opacity (0.6s, delay 0.6)
+- Counters: motionValue animation (2.2–2.5s)
+- Pulse ring: scale loop (1→1.15→1, 2.5s, infinite)
+
+---
+
+### AboutSection.tsx (`"use client"`)
+Homepage about snapshot with portrait and bio cards.
+
+**Features:**
+- White background with gold section divider
+- Section header: label + name + gold rule (16px, 3px)
+- Two-column layout (stacks on mobile)
+- Left: portrait image (`balaji-and-vijay-bokeh.jpeg`) in 3:4 aspect, max 380px
+  - Sticky on desktop (`lg:sticky lg:top-[100px]`)
+  - Gradient overlay at bottom (`transparent → rgba(40,10,12,0.95)`)
+  - Name + role text overlay
+  - Gold corner accents (top-left, top-right)
+- Right: biography text + info cards grid (2 columns)
+- 3 info cards, each with:
+  - 3px maroon left border
+  - Icon from Icons component
+  - Title (gray, teko, uppercase)
+  - Value (maroon, bold)
+  - Detail text
+
+**Bio Cards:**
+1. Birthday — born in Karungalpalayam, Erode
+2. Education — B.Com (Computer Science), Dr. G.R. Damodaran College
+3. Minister Role — Handlooms & Textiles, Govt of Tamil Nadu
+
+**Animations:**
+- Header: y 40→0 (0.7s)
+- Portrait: x -40→0 (0.7s, delay 0.2)
+- Bio text: y 30→0 (0.7s, delay 0.3)
+- Info cards: y 20→0 (0.5s, staggered 0.1s, delay 0.4)
+
+---
+
+### Timeline.tsx + Stepper.tsx (`"use client"`)
+Interactive journey timeline with auto-advancing stepper.
+
+**Features:**
+- White background with large "TVK" watermark (30vw, 2% opacity)
+- Section header: label + "JOURNEY" + gold rule
+- Stepper component with 5 milestones
+
+**Milestones:**
+1. 1986 — Born in Karungalpalayam
+2. 2006 — Commerce Graduate
+3. 2020 — Joined the Movement
+4. 2024 — District Secretary
+5. 2026 — Elected MLA — Erode East
+
+**Stepper Component:**
+- Step indicators: numbered circles (inactive: gray, active: maroon bg + gold text, complete: gold bg + maroon text)
+- Connecting lines: animated width (0→100%) with `rgba(255,202,0,0.15)` → `var(--manjal)` transition
+- Auto-advance: `setInterval` every 3.5s, loops back to step 1
+- Manual navigation: click step indicators or prev/next buttons
+- Content shows year badge (maroon bg), title, Tamil title, description
+
+**Animations:**
+- Step indicator dots: variant-based (inactive/active/complete) with backgroundColor, scale (0.3s)
+- Connecting lines: width 0→100% + backgroundColor transition (0.4s)
+- Content: native Stepper transitions (slide/fade)
+
+---
+
+### DistrictMap.tsx (`"use client"`)
+Constituency section with map and works.
+
+**Features:**
+- White → gray gradient background
+- Section header: label + "ERODE EAST" + gold rule
+- Two-column layout: map left, works right
+- Map: `tamilnadu-districts-tvk-style.png` with gold pulse marker at Erode
+  - Drop shadow filter
+  - Erode East label badge (maroon bg, gold border)
+  - 3 concentric pulse rings (staggered 0.65s delay, 2s loop)
+- Area tags: colored dots (Urban=maroon, Semi-Urban=gold, Rural=green) + bilingual names
+- Works tabs: "Progress" / "Completed" with gold underline active indicator
+- Work items: icon + title + Tamil subtitle + status badge
+  - Status: "Completed" = green, "In Progress" = gold
+- Uses `Icons` component for work type icons
+
+**Data Sources:**
+- `constituencyAreas` — list of areas with names, Tamil names, types
+- `constituencyWorks.inProgress` / `.completed` — work items with titles, icons, status
+
+**Animations:**
+- Header: y 40→0 (0.7s)
+- Map: x -40→0 (0.7s, delay 0.2)
+- Pulse ring: scale 16→56, opacity 0.8→0 (2s, infinite, staggered 0.65s)
+- Erode label: y -10→0 (0.5s, delay 1s)
+- Works: x 40→0 (0.7s, delay 0.3)
+- Work items: y 20→0 (0.4s, staggered 0.08s)
+
+---
+
+### AnnouncementsList.tsx (`"use client"`)
+Filterable announcements section.
+
+**Features:**
+- White background
+- Section header: label + "UPDATES" + gold rule
+- 3 filter tabs: All, Announcements, Events
+- Cards: date badge (maroon bg, gold day number, white month), title, Tamil subtitle, hover arrow
+- Date badge: formatted with `formatDate()` (day, month, year)
+- Type indicator: announcement=gold tint, event=blue tint
+- "View More" gold CTA button linking to /updates
+
+**Data Sources:**
+- `announcements` array with date, title, titleTamil, type
+
+**Animations:**
+- Header: y 40→0 (0.7s)
+- Tabs: y 20→0 (0.5s, delay 0.2)
+- Items: y 20→0 (0.5s, staggered 0.08s, delay 0.3)
+- Arrow: opacity 0→1 on group hover (0.3s)
+- CTA: opacity (delay 0.8s)
+
+---
+
+### SocialFeed.tsx (`"use client"`)
+Social media follow section with two columns.
+
+**Features:**
+- Gray → white gradient background
+- Section header: label + "SOCIAL MEDIA" + gold rule
+- Two equal-height columns (grid, items-stretch)
+- Leader column: VB avatar (maroon circle), handle "Vijay Balaji", role text, 3 social links (Instagram, Facebook, LinkedIn)
+- Party column: TVK avatar (gold circle), party name, 3 social links (Twitter, Facebook), embedded tweet placeholder
+- Follow arrow appears on hover
+- CTA buttons: "FOLLOW ON X" (maroon, bottom of leader column), "VISIT PARTY WEBSITE" (gold, bottom of party column)
+
+**Data Sources:**
+- `socialLinks` for URLs
+- `leaderSocials` / `partySocials` arrays
+
+**Animations:**
+- Header: y 40→0 (0.7s)
+- Leader column: x -30→0 (0.7s, delay 0.2)
+- Party column: x 30→0 (0.7s, delay 0.3)
+- Follow arrow: opacity 0→1 on group hover (0.3s)
+
+---
+
+### JoinSection.tsx (`"use client"`)
+Contact CTA with form.
+
+**Features:**
+- Dark background: image overlay with gradient (90% black → 85% maroon → 90% black)
+- Gold top line (gradient)
+- Section header: gold subtitle + white title + gold rule
+- Two-column layout: CTA left, form right
+- Left: Tamil greeting, English description, email contact card with hover effect
+- Right: form in glassmorphism container (blur 12px, semi-transparent bg)
+- Form fields: Name, Phone, Ward (2-col grid), Message (textarea)
+- All inputs have focus styles (gold border, tinted bg)
+- Submit button (gold, full width)
+- Success state: button text changes ("Submitted!" / "அனுப்பப்பட்டது") for 3s
+
+**Data Sources:**
+- `t.join_*` translations
+
+**Animations:**
+- Header: none (static, but parent isInView managed)
+- Left column: x -30→0 (0.7s, delay 0.2)
+- Right column: x 30→0 (0.7s, delay 0.3)
+
+---
+
+### Footer.tsx (`"use client"`)
+Site footer with 4-column layout.
+
+**Features:**
+- Background: `#1a0a0a` (dark maroon)
+- Top border: 3px solid `var(--manjal)` (gold)
+- Noise texture overlay (SVG feTurbulence, 3% opacity)
+- Subtle radial glows (gold + maroon)
+- **Top brand row:** logo (56px) + name (3xl teko) + minister title + tagline on left, social icons (48px) on right with "FOLLOW US" label
+- **4-column grid:**
+  - Col 1: Quick Links (About, Constituency, Journey, Contact)
+  - Col 2: Resources (Announcements, Gallery, Grievance Form, Party Website)
+  - Col 3: Connect (Email, Office address in bordered card)
+  - Col 4: Office Hours (Mon-Fri 10-17, Sat 10-13, Sun Closed) + urgent contact CTA
+- All links: hover to gold color + 6px left padding slide
+- **Bottom bar:** gradient gold separator line, copyright, tagline
+
+**Data Sources:**
+- `footerLinks.quickLinks`, `.resources` — link arrays
+- `socialLinks` — social URLs
+- `siteConfig` — name, constituency, state
+
+**Animations:**
+- Social icons: whileHover scale 1.15 (0.2s)
+- Links: onMouseEnter color + paddingLeft transitions (0.3s)
+
+---
+
+### Navbar.tsx (`deprecated`)
+Old GSAP-based navbar. No longer used — replaced by CardNav.tsx.
+
+---
+
+### Icons.tsx
+SVG icon set used across components:
+
+| Icon Name | Used In |
+|-----------|---------|
+| `birthday` | AboutSection (birth card) |
+| `graduation` | AboutSection (education card) |
+| `building` | AboutSection (minister card) |
+| `document` | JoinSection (email card) |
+| `road`, `water`, `health`, `education`, `welfare` | DistrictMap (work items) |
+
+---
+
+### SmoothScroll.tsx
+Lenis smooth scroll provider. Wraps `children` in a Lenis instance.
+
+---
+
+## Typography System
+
+### Font Stack
+
+| Font | Usage | Weight | Loading Method |
+|------|-------|--------|----------------|
+| **Teko** | Headings, uppercase text, stats, buttons | 400, 500, 600, 700 | `next/font/google` with `display: swap`, CSS variable `--font-teko` |
+| **Instrument Sans** | Body text, paragraphs, form inputs | 400, 500, 600, 700, italic 400 | `next/font/google` with `display: swap`, CSS variable `--font-ins-sans` |
+| **Noto Sans Tamil** | All Tamil text | 400, 500, 600, 700 | External Google Fonts link in `<head>`, CSS variable `--font-tamil` |
+
+### Font Sizes (clamp scale)
+
+| Element | Size Formula | Example Range |
+|---------|-------------|---------------|
+| Hero title (outlined) | `clamp(3rem, 12vw, 10rem)` | 48px → 160px |
+| Section headings | `clamp(2.5rem, 6vw, 4rem)` | 40px → 64px |
+| Hero name | `clamp(1.25rem, 3vw, 2rem)` | 20px → 32px |
+| Counter numbers | `clamp(2.5rem, 7vw, 4.5rem)` | 40px → 72px |
+| Stat labels | `clamp(14px, 2vw, 18px)` | 14px → 18px |
+| Section subtitle | `text-sm` (14px) | — |
+| Body text | `15px` / `16px` | — |
+| Small text | `text-xs` (12px) | — |
+
+### Line Heights
+
+| Context | Line Height |
+|---------|-------------|
+| Headings (h1–h6, teko) | 1.1 |
+| Body (English, Tamil) | 1.5 – 1.9 |
+| Footer text | 1.4 – 1.7 |
+
+### Letter Spacing
+
+| Context | Spacing |
+|---------|---------|
+| Hero title | `0.02em` |
+| Hero tagline | `0.15em` |
+| Section labels | `0.25em` |
+| Button text | `0.05em` |
+| Footer headings | `0.25em` |
+| Nav links | `0.06em` |
+| Stats labels | `0.12em` |
+
+---
+
+## Design Tokens & Brand
+
+### CSS Custom Properties (globals.css)
+
+```css
+:root {
+  --maroon: oklch(44.32% 0.181862 29.2339);
+  --marlot: #5c1a1b;
+  --manjal: #ffca00;
+  --pale-manjal: #ffe082;
+  --dodgerblue: #1e90ff;
+  --white: #f8f9fc;
+  --black: #1a1a2e;
+  --gray: #888;
+  --text-primary: #1a1a2e;
+  --text-secondary: #555559;
+  --text-muted: #999;
+  --maroon-dark: oklch(34% 0.16 29);
+  --maroon-light: oklch(54% 0.14 29);
+  --hero-overlay: rgba(40, 10, 12, 0.85);
+  --card-shadow: 0 4px 24px rgba(92, 26, 27, 0.10);
+  --card-shadow-hover: 0 8px 32px rgba(92, 26, 27, 0.18);
+  --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
 ```
 
+### Color Usage Map
+
+| Color | Usage |
+|-------|-------|
+| `--maroon` | Primary brand: headings, buttons, navbar, accent borders, active states |
+| `--marlot` | Darker maroon: button hovers, gradient endpoints |
+| `--manjal` | Gold accent: highlights, decorative lines, active indicators, CTAs |
+| `--pale-manjal` | Lighter gold: button hover tints |
+| `--white` | Page background, card backgrounds |
+| `--black` | Body text |
+| `--gray` | Secondary text, labels |
+| `#1a0a0a` | Footer background (dark maroon) |
+| `#1e90ff` | Dodger blue: event type badges, updates type |
+
+### Utility Classes
+
+| Class | Purpose |
+|-------|---------|
+| `.btn-primary` | Maroon button with gold text |
+| `.btn-gold` | Gold button with maroon text |
+| `.card` | White card with shadow and maroon left border |
+| `.card-maroon` | Maroon background card |
+| `.tab-button` | Section filter tabs with gold underline indicator |
+| `.victory-stat` | Centered stats column |
+| `.victory-number` | Large teko counter number |
+| `.profile-card` | About info card with maroon left border |
+| `.profile-card-label` | Gray uppercase label |
+| `.timeline-dot` | Circular step indicator |
+| `.timeline-year` | Year label under dot |
+| `.timeline-content-card` | Content card with shadow |
+| `.section-divider` | Gradient line with icon between sections |
+| `.scroll-progress` | Fixed top gradient bar |
+| `.nav-link` | Navigation link with hover gold color |
+| `.font-teko` / `.font-ins-sans` / `.font-tamil` | Font family utilities |
+| `.bg-maroon` / `.bg-manjal` / `.bg-marlot` | Background color utilities |
+| `.text-maroon` / `.text-manjal` / `.text-pale-manjal` | Text color utilities |
+| `.border-manjal` | Border color utility |
+
 ---
 
-## Performance
+## Animation Reference
+
+### Framer Motion Patterns
+
+| Pattern | Usage | Implementation |
+|---------|-------|----------------|
+| **Viewport reveal** | All sections | `useInView(ref, { once: true, margin: "-80px" })` + `initial`/`animate` props |
+| **Parallax scroll** | Hero | `useScroll()` → `useTransform(scrollYProgress, [0,1], ["0%","30%"])` |
+| **Animated counters** | VictoryCard | `useMotionValue(0)` + `animate(motionValue, target, { duration, ease })` |
+| **Staggered children** | CardNav, Announcements | Array.map with `transition.delay = base + i * stagger` |
+| **Exit animations** | CardNav menu | `AnimatePresence` with `exit` prop |
+| **Variants** | Stepper dots | Object with `inactive`/`active`/`complete` defining scale + backgroundColor |
+| **whileHover** | Social icons (Footer) | `whileHover={{ scale: 1.15 }}` |
+| **Loop** | Scroll arrow, pulse ring | `animate` with `repeat: Infinity`, `duration` |
+| **Route-based** | CardNav close | `usePathname()` in useEffect triggers `closeMenu()` |
+
+### Animation Timing Constants
+
+```typescript
+const smoothEase: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94];
+```
+
+### Animation Durations Reference
+
+| Animation | Duration | Delay | Ease |
+|-----------|----------|-------|------|
+| Hero gold rule | 0.6s | 0.2s | smoothEase |
+| Hero title line 1 | 0.5s | 0.3s | smoothEase |
+| Hero title line 2 | 0.5s | 0.45s | smoothEase |
+| Hero name block | 0.6s | 0.65s | smoothEase |
+| Hero tagline | 0.6s | 0.85s | smoothEase |
+| Hero scroll indicator | 0.6s | 1.5s | — |
+| Hero scroll arrow bounce | 1.8s | — | easeInOut, infinite |
+| Victory badge | 0.6s | — | smoothEase |
+| Victory image | 0.8s | 0.4s | smoothEase |
+| Victory stats | 0.7s | 0.2s | smoothEase |
+| Victory opponent | 0.6s | 0.6s | smoothEase |
+| Victory counter | 2.2–2.5s | — | smoothEase |
+| Victory pulse ring | 2.5s | — | easeInOut, infinite |
+| About header | 0.7s | — | smoothEase |
+| About portrait | 0.7s | 0.2s | smoothEase |
+| About bio text | 0.7s | 0.3s | smoothEase |
+| About cards | 0.5s | 0.4 + i*0.1s | smoothEase |
+| Timeline content | 0.4s (Stepper) | — | — |
+| Step indicator | 0.3s | — | — |
+| Connecting line | 0.4s | — | — |
+| Auto-advance interval | 3.5s | — | — |
+| DistrictMap header | 0.7s | — | smoothEase |
+| DistrictMap map | 0.7s | 0.2s | smoothEase |
+| Pulse ring 1 | 2s | 0s | easeOut, infinite |
+| Pulse ring 2 | 2s | 0.65s | easeOut, infinite |
+| Pulse ring 3 | 2s | 1.3s | easeOut, infinite |
+| Erode label | 0.5s | 1s | — |
+| Works column | 0.7s | 0.3s | smoothEase |
+| Works items | 0.4s | i*0.08s | smoothEase |
+| Announcements header | 0.7s | — | smoothEase |
+| Announcements tabs | 0.5s | 0.2s | smoothEase |
+| Announcement items | 0.5s | 0.3 + i*0.08s | smoothEase |
+| Announcement arrow | 0.3s | — | — |
+| Social header | 0.7s | — | smoothEase |
+| Leader column | 0.7s | 0.2s | smoothEase |
+| Party column | 0.7s | 0.3s | smoothEase |
+| Follow arrow | 0.3s | — | — |
+| Join left column | 0.7s | 0.2s | smoothEase |
+| Join right column | 0.7s | 0.3s | smoothEase |
+| CardNav content | 0.2s | — | — |
+| CardNav cards | 0.3s | 0.08 + i*0.06s | custom |
+| Footer social hover | 0.2s | — | — |
+| Footer link hover | 0.3s | — | — |
+
+### CSS Animations
+
+| Name | Properties | Duration | Iteration | Used For |
+|------|-----------|----------|-----------|----------|
+| `pulse-gold` | box-shadow 0→12px→0 | 2s | infinite | Timeline active dot, constituency pulse |
+| `scroll-bounce` | translateY 0→6px→0 | 1.8s | infinite | Scroll indicator |
+| `pulse-monogram` | opacity 0.15→0.3→0.15 | 1.5s | infinite | Loading state |
+
+---
+
+## Scenes (Sections) Breakdown
+
+### Home Page Scene Order
+
+1. **Navbar** (CardNav) — fixed top, z-index 9999, 96px spacer below
+2. **HeroSection** — 100vh, full-screen with parallax
+3. **VictoryCard** — maroon gradient, stats + image
+4. **SectionDivider** — 1px gold gradient line
+5. **AboutSection** — white bg, portrait + bio
+6. **SectionDivider**
+7. **Timeline** — Stepper with auto-advance
+8. **SectionDivider**
+9. **DistrictMap** — map + works tabs
+10. **SectionDivider**
+11. **AnnouncementsList** — filterable cards
+12. **SectionDivider**
+13. **SocialFeed** — two social columns
+14. **SectionDivider**
+15. **JoinSection** — dark bg, form + CTA
+16. **Footer** — dark maroon, 4 columns
+
+### SectionDivider Component
+```
+1px gradient line: transparent → maroon 12% → gold 50% → maroon 80% → transparent
+```
+Rendered between each major section on the home page for visual separation.
+
+---
+
+## Data Flow & State Management
+
+### Language State
+```
+LanguageContext (React Context + localStorage)
+  ├── lib/translations.ts (key-value map for EN and TA)
+  └── All "use client" components consume via `useLanguage()`
+```
+
+### Data Sources
+- `lib/data.ts` — All static content (site config, elections, timeline, works, announcements, social links)
+- `lib/translations.ts` — All bilingual strings
+- `localStorage` — Language preference (`vijaybalaji_lang`) + grievance submissions (`vijaybalaji_grievances`)
+
+### Component Data Dependencies
+
+| Component | Data Dependencies |
+|-----------|------------------|
+| HeroSection | translations (hero_*), siteConfig |
+| VictoryCard | translations (victory_*), electionData |
+| AboutSection | translations (about_*), siteConfig |
+| Timeline | translations (timeline_*) |
+| DistrictMap | translations (constituency_*), constituencyAreas, constituencyWorks |
+| AnnouncementsList | translations (announcements_*), announcements |
+| SocialFeed | translations (social_*), socialLinks |
+| JoinSection | translations (join_*) |
+| Footer | translations (footer_*), footerLinks, socialLinks, siteConfig |
+
+---
+
+## Performance Optimizations
 
 ### Image Optimization
-- AVIF + WebP formats
+- Formats: AVIF + WebP (automatic via `next.config`)
 - Device sizes: 640, 750, 828, 1080, 1200, 1920
-- 1 year cache TTL for optimized images
-- Proper `sizes` props on all fill images
+- Image sizes: 16, 32, 48, 64, 96, 128, 256
+- Cache TTL: 1 year (31536000s)
+- `contentDispositionType: 'attachment'`
+- Proper `sizes` props on all `fill` images:
+  - CardNav logo: `sizes="32px"`
+  - Footer logo: `sizes="56px"`
+  - Hero mobile bg: `sizes="(max-width: 768px) 100vw"`
+  - VictoryCard: `sizes="(max-width: 640px) 200px, (max-width: 1024px) 280px, 320px"`
+  - About portrait: `sizes="(max-width: 768px) 100vw, 380px"`
+  - DistrictMap: `sizes="(max-width: 768px) 100vw, 50vw"`
 
-### Component Lazy Loading
-- `Timeline`, `DistrictMap`, `SocialFeed`, `AnnouncementsList`, `JoinSection` via `next/dynamic`
-- Skeleton loading placeholders (`animate-pulse bg-gray-100`)
-
-### Bundle Optimization
+### Code Splitting
+- `next/dynamic` for: Timeline, DistrictMap, AnnouncementsList, SocialFeed, JoinSection
+- Skeleton placeholders: `animate-pulse bg-gray-100` with appropriate heights (64–96)
 - `optimizePackageImports: ['framer-motion']` in next.config
-- Tree-shaken imports
+
+### Caching Strategy
+| Asset Type | Cache Header | Source |
+|-----------|--------------|--------|
+| `_next/static/*` | `public, max-age=31536000, immutable` | vercel.json |
+| `*.jpg, *.png, *.webp, etc.` | `public, max-age=31536000, immutable` | vercel.json |
+| HTML pages | Vercel default (ISR-ready) | — |
+
+### Font Loading
+- Teko + Instrument Sans: `next/font/google` with `display: swap`
+- Noto Sans Tamil: external link with `preconnect` hints
+- CSS variables assigned at `<body>` level
+
+### Security Headers
+| Header | Value |
+|--------|-------|
+| X-Frame-Options | DENY |
+| X-Content-Type-Options | nosniff |
+| Referrer-Policy | strict-origin-when-cross-origin |
+| Permissions-Policy | camera=(), microphone=(), geolocation=() |
+| X-DNS-Prefetch-Control | on |
 
 ---
 
-## SEO
+## SEO & Metadata
 
-### Metadata
-- Title template: `%s | M. Vijay Balaji — Erode East MLA`
-- Description with keyword-rich content
-- Open Graph with 1200×630 image
-- Twitter Card (summary_large_image)
-- Language alternates (en-IN, ta-IN)
+### layout.tsx Metadata
+
+```typescript
+title: {
+  default: 'M. Vijay Balaji | Minister for Handlooms & Textiles | Govt of Tamil Nadu',
+  template: '%s | M. Vijay Balaji — Erode East MLA',
+}
+description: 'Official website of M. Vijay Balaji...'
+keywords: ['M. Vijay Balaji', 'Erode East MLA', 'Handlooms Minister Tamil Nadu', ...]
+```
+
+### Open Graph
+| Property | Value |
+|----------|-------|
+| title | M. Vijay Balaji — Minister for Handlooms & Textiles, Govt of Tamil Nadu |
+| description | Elected MLA for Erode East... |
+| url | `NEXT_PUBLIC_SITE_URL` |
+| siteName | M. Vijay Balaji Official |
+| locale | ta_IN |
+| alternateLocale | en_IN, ta |
+| type | website |
+| images | 1200×630, alt text |
+
+### Twitter Card
+| Property | Value |
+|----------|-------|
+| card | summary_large_image |
+| title | M. Vijay Balaji \| Minister for Handlooms & Textiles |
+| creator | @TVKVijayHQ |
 
 ### Structured Data (JSON-LD)
-- Schema.org `Person` type
-- Job title, party affiliation, address, sameAs profiles
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "M. Vijay Balaji",
+  "alternateName": ["ம. விஜய் பாலாஜி", "Vijay Balaji MLA"],
+  "jobTitle": "Minister for Handlooms and Textiles",
+  "worksFor": { "@type": "Organization", "name": "Government of Tamil Nadu" },
+  "memberOf": { "@type": "PoliticalParty", "name": "Tamilaga Vettri Kazhagam" }
+}
+```
 
-### Technical
-- `robots.txt` with sitemap reference
-- `sitemap.xml` with 6 URLs
-- Canonical URL
-- Google site verification env var
+### Technical SEO
+- `robots.txt`: Allow all, sitemap reference
+- `sitemap.xml`: 6 URLs with priorities (1.0 homepage, 0.8 subpages)
+- Canonical URL: `NEXT_PUBLIC_SITE_URL`
+- Language alternates: `en-IN`, `ta-IN`
+- Google Site Verification: via env var `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`
 
 ---
 
 ## Accessibility
 
-- `:focus-visible` gold outline on all interactive elements
-- ARIA labels on navbar, timeline, map, forms
-- Form inputs with proper `htmlFor` + `id` pairing
-- `prefers-reduced-motion` disables all animations
+### Focus Management
+- `:focus-visible` — 2px gold outline, 3px offset on all interactive elements
+- Custom styling for `button:focus-visible`, `a:focus-visible`
+
+### ARIA Attributes
+| Element | Attribute |
+|---------|-----------|
+| Hamburger button | `aria-label="Open menu" / "Close menu"` |
+| Language toggle | `aria-label` with bilingual text |
+| Timeline dots | `role="button"`, `aria-label="Go to year {year}"` |
+| Map SVG | `aria-label="Tamil Nadu map..."`, `role="img"` |
+| Form inputs | `htmlFor` + `id` pairing |
+| Form submit | `aria-live="polite"` for success |
+
+### Reduced Motion
+- `@media (prefers-reduced-motion: reduce)` disables all animations and transitions
+- Applies to: `*`, `*::before`, `*::after` — all animation-duration and transition-duration set to 0.01ms
+
+### Semantic HTML
+- `<nav>` for navigation
+- `<main>` for primary content
+- `<footer>` with `shrink-0` for layout stability
+- `<section>` elements with `id` attributes for anchor linking
+- `<h1>` through `<h4>` heading hierarchy
 
 ---
 
-## Getting Started
+## Deployment
 
-```bash
-npm install
-npm run dev        # Local development (port 3000)
-npm run build      # Production build
-npm run start      # Start production server
-npm run lint       # ESLint
+### Vercel Configuration (vercel.json)
+
+```json
+{
+  "framework": "nextjs",
+  "regions": ["bom1"],
+  "headers": [
+    { "source": "/(.*)", "headers": [security headers] },
+    { "source": "/_next/static/(.*)", "headers": [1yr cache] },
+    { "source": "/(.*).(jpg|jpeg|png|webp|avif|svg|ico|mp4)", "headers": [1yr cache] }
+  ],
+  "redirects": [{ "source": "/home", "destination": "/", "permanent": true }]
+}
 ```
+
+### Environment Variables
+```env
+NEXT_PUBLIC_SITE_URL=https://vijaybalajimla.in
+NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=
+```
+
+### Build & Deploy
+```bash
+npm run build      # Production build (static pages)
+npm run start      # Production server
+# Vercel: auto-deploys from main branch
+```
+
+### 404 Page
+- Maroon gradient background
+- Large gold "404" (Teko, ~120px)
+- Bilingual message: "இந்த பக்கம் கிடைக்கவில்லை" / "Page not found"
+- "BACK TO HOME" gold CTA button
+
+### Loading State
+- Full page, white background
+- Centered "VB" monogram (maroon, Teko, ~64px)
+- Pulse animation (opacity 0.15→0.3, 1.5s infinite)
+- "Loading..." in small text below
+
+---
+
+## Recent Changes
+
+| Change | Reason | Files |
+|--------|--------|-------|
+| Removed WhatsApp | Privacy/scope reduction | `data.ts`, `Footer.tsx`, `JoinSection.tsx`, `contact/page.tsx` |
+| Removed family bio card | Privacy | `data.ts`, `translations.ts`, `AboutSection.tsx` |
+| New Hero (minimal text) | Cleaner design, no portrait | `HeroSection.tsx` |
+| New Footer (dark 4-col) | Brand consistency, better UX | `Footer.tsx` |
+| New CardNav (Framer Motion) | Removed GSAP dependency | `CardNav.tsx`, `CardNav.css` |
+| Stepper integration | Auto-advance timeline | `Stepper.tsx`, `Stepper.css`, `Timeline.tsx` |
+| Title update | Role change to Minister | `data.ts`, `translations.ts`, `HeroSection.tsx` |
+| Erode Tamil spelling fix | `எரோடு` → `ஈரோடு` | All TS/TSX files |
+| SEO metadata + JSON-LD | Search visibility | `layout.tsx` |
+| Section dividers on home | Visual separation | `page.tsx` |
+| Vercel deployment config | Production deploy | `vercel.json`, `.env.example` |
+| Image sizes optimization | Perf warnings fixed | `HeroSection.tsx`, `VictoryCard.tsx`, `CardNav.tsx`, `Footer.tsx` |
+| Stepper transparent fix | Framer Motion warning | `Stepper.tsx` |
+| Background image fix | 404 error | `JoinSection.tsx` |
 
 ---
 
@@ -213,10 +880,11 @@ npm run lint       # ESLint
 ### LANGUAGE
 - [x] Toggle switches ALL text strings — no English leaks in Tamil mode
 - [x] localStorage persists language across page refresh
-- [x] Tamil text renders in Noto Sans Tamil
+- [x] Tamil text renders in Noto Sans Tamil — no fallback squares
 - [x] All sub-pages read language from context
 
 ### VISUAL
+- [x] Scroll progress bar visible on all pages
 - [x] Hero parallax works on desktop and mobile
 - [x] Victory counters animate up from 0 on first scroll
 - [x] Stepper timeline auto-advances every 3.5s
@@ -224,20 +892,22 @@ npm run lint       # ESLint
 - [x] CardNav opens/closes with AnimatePresence
 - [x] Footer 4-column grid aligns properly
 - [x] No horizontal overflow on any page
+- [x] Section dividers visible between home sections
 
 ### PERFORMANCE
 - [x] Fonts loaded with `display: swap`
-- [x] Below-fold sections lazy-loaded
+- [x] Below-fold sections lazy-loaded via `next/dynamic`
 - [x] Image formats optimized (AVIF, WebP)
 - [x] Proper `sizes` props on all fill images
 - [x] Cache headers configured for Vercel
+- [x] Bundle optimized (framer-motion tree-shaken)
 
 ### ACCESSIBILITY
 - [x] Tab navigation works through entire page
 - [x] Focus rings visible on all interactive elements
-- [x] Form labels connected to inputs
+- [x] Form labels connected to inputs via `htmlFor` + `id`
 - [x] Reduced motion media query respected
-- [x] ARIA labels on interactive elements
+- [x] ARIA labels on navbar, timeline dots, map, forms
 
 ### FUNCTIONALITY
 - [x] Grievance form submits and shows success state
@@ -246,3 +916,5 @@ npm run lint       # ESLint
 - [x] Language toggle works on every page
 - [x] All internal links navigate correctly
 - [x] Footer links work
+- [x] 404 page displays on unknown routes
+- [x] Loading state shows on page transitions
