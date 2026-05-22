@@ -1,4 +1,3 @@
-import Navbar from "@/components/Navbar";
 import CardNav from "@/components/CardNav";
 import IntroLoader from "@/components/IntroLoader";
 import HeroSection from "@/components/HeroSection";

@@ -1,6 +1,6 @@
 # M. Vijay Balaji — MLA Erode East Official Website
 
-> **Version:** 0.1.0 | **Stack:** Next.js 16.2.6 + React 19.2.4 + TypeScript + Tailwind CSS v4 + Framer Motion 12.40
+> **Version:** 0.2.0 | **Stack:** Next.js 16.2.6 + React 19.2.4 + TypeScript + Tailwind CSS v4 + Framer Motion 12.40 + GSAP 3.12 + SplitType
 
 ---
 
@@ -31,8 +31,10 @@
 | **Language** | TypeScript 5.x |
 | **UI Library** | React 19.2.4 |
 | **Styling** | Tailwind CSS v4 |
-| **Animation** | Framer Motion 12.40 |
+| **Animation** | Framer Motion 12.40 + GSAP 3.12 (ScrollTrigger, SplitType) |
 | **Smooth Scroll** | Lenis 1.3.23 |
+| **Text Splitting** | SplitType |
+| **Icons** | lucide-react (icons), custom SVG (Icons.tsx) |
 | **Fonts** | Google Fonts via `next/font` + external link |
 | **Linting** | ESLint 9.x (flat config) |
 | **Build** | Next.js built-in (Turbopack dev, Webpack prod) |
@@ -43,24 +45,26 @@
 
 ```
 app/
-├── globals.css                 # Root styles: brand tokens, typography, utilities, animations
+├── globals.css                 # Root styles: brand tokens, typography, utilities, animations (cinematic v2)
 ├── layout.tsx                  # Root layout: SEO metadata, JSON-LD structured data, fonts, providers
-├── page.tsx                    # Home landing page (lazy-loaded sections with SectionDivider)
+├── page.tsx                    # Home landing page (IntroLoader, grain/vignette overlays, cinematic dividers)
 ├── loading.tsx                 # Full-page loading state (VB monogram pulse)
 ├── not-found.tsx               # 404 page (bilingual)
-├── about/page.tsx              # Full biography page
-├── constituency/page.tsx       # Constituency detail page
-├── contact/page.tsx            # Contact + grievance form page
-├── gallery/page.tsx            # Media gallery with lightbox
-└── updates/page.tsx            # News/updates feed with search
+├── about/page.tsx              # Full biography page (cinematic overlays + dividers)
+├── constituency/page.tsx       # Constituency detail page (cinematic overlays + dividers)
+├── contact/page.tsx            # Contact + grievance form page (cinematic overlays + dividers)
+├── gallery/page.tsx            # Media gallery with lightbox (cinematic overlays + dividers)
+└── updates/page.tsx            # News/updates feed with search (cinematic overlays + dividers)
 
 components/
-├── CardNav.tsx                 # Framer Motion card-style navigation bar
+├── CardNav.tsx                 # Framer Motion card-style navigation bar (replaces old Navbar)
 ├── CardNav.css                 # CardNav styles (rounded, shadow, hover/collapse)
 ├── SmoothScroll.tsx            # Lenis smooth scroll provider
-├── HeroSection.tsx             # Hero scene: video/image bg, outlined title, name block, tagline, scroll indicator
-├── VictoryCard.tsx             # Election results: animated counters, opponent info, pulsing ring
+├── IntroLoader.tsx             # Cinematic intro: VB monogram, gold flare sweep, loading bar, ambient glow
+├── HeroSection.tsx             # Hero scene: SplitType char-reveal, mouse-reactive radial glow, outlined title
+├── VictoryCard.tsx             # Election results: GSAP interactive glow overlay, animated counters
 ├── AboutSection.tsx            # Home about: portrait, bio text, 3 info cards (born, edu, role)
+├── ScrollStorytelling.tsx      # 4-scene pinned GSAP SplitType scroll story with gradient backgrounds
 ├── Timeline.tsx                # Journey timeline: Stepper component with auto-advance
 ├── Stepper.tsx                 # Reusable stepper: animated step dots, connecting lines, prev/next
 ├── Stepper.css                 # Stepper layout + responsive styles
@@ -68,9 +72,15 @@ components/
 ├── AnnouncementsList.tsx       # Announcements: tab filter, date badges, hover reveal
 ├── SocialFeed.tsx              # Social media: leader + party columns, follow links
 ├── JoinSection.tsx             # CTA + contact form: dark bg, email card, form inputs
-├── Footer.tsx                  # Site footer: brand, links, socials, office hours, bottom bar
-├── Navbar.tsx                  # Old navbar (deprecated — CardNav replaces it)
+├── Footer.tsx                  # Site footer: GSAP link animations, brand, links, socials, office hours, ambient glows
+├── Navbar.tsx                  # Re-exports CardNav (kept for backward compatibility)
 └── Icons.tsx                   # SVG icon set: birthday, graduation, building, document, etc.
+
+lib/
+├── data.ts                     # All static content: site config, election data, timeline, works, etc.
+├── LanguageContext.tsx          # React context + localStorage for EN/TA toggle
+├── translations.ts             # Complete bilingual translation map (EN + TA)
+└── animation.tsx               # GSAP hooks (ScrollTrigger), MagneticButton, GlowCard, AnimatedSection, SectionHeader, animation constants
 
 lib/
 ├── data.ts                     # All static content: site config, election data, timeline, works, etc.
@@ -409,8 +419,67 @@ Site footer with 4-column layout.
 
 ---
 
-### Navbar.tsx (`deprecated`)
-Old GSAP-based navbar. No longer used — replaced by CardNav.tsx.
+### Navbar.tsx
+Re-exports `CardNav` as default for backward compatibility. All pages can import `Navbar` and receive `CardNav`. New code should import `CardNav` directly.
+
+---
+
+### IntroLoader.tsx (`"use client"`)
+Cinematic full-screen intro loader with VB monogram reveal.
+
+**Features:**
+- 3.2s total duration: monogram fade-in → hold → fade-out
+- Gold flare sweep across screen (1.8s, left→right)
+- Ambient radial glow (gold + maroon)
+- Grain texture overlay
+- Loading bar at bottom (0% → 100%, 2.5s)
+- Auto-dismisses after animation completes
+
+**Animations:**
+- Monogram container: scale 0.85→1, opacity 0→1 (0.8s)
+- Flare: x -100%→100% (1.8s)
+- Loading bar: scaleX 0→1 (2.5s)
+- Exit: scale 0.95 + opacity (0.6s)
+
+---
+
+### ScrollStorytelling.tsx (`"use client"`)
+4-scene pinned scroll narrative using GSAP ScrollTrigger + SplitType.
+
+**Features:**
+- Full-screen pinned sections with gradient background transitions
+- SplitType word-by-word reveals via GSAP
+- Scene progress indicators (current scene / 4)
+- Background transitions: maroon→gold→dark→maroon
+- Text overlay with scene number, title, subtitle, description
+
+**Scenes:**
+1. Born in Erode — Karungalpalayam roots
+2. Education — B.Com (CS), Dr. G.R. Damodaran College
+3. Party Rise — TVK District Secretary
+4. Elected MLA — Erode East, 2026 Landslide Victory
+
+**Animations:**
+- SplitType chars/words animate in on scene enter
+- Background morphs between scenes
+- GSAP ScrollTrigger `scrub: 1` for smooth transitions
+
+---
+
+### lib/animation.tsx (`"use client"`)
+Shared animation utility library for GSAP-powered interactions.
+
+**Exports:**
+- `useGsapContext()` — GSAP context hook with cleanup
+- `useScrollTrigger(options)` — ScrollTrigger registration hook
+- `MagneticButton` — Button that follows cursor via GSAP spring
+- `GlowCard` — Card with perspective tilt and mouse-reactive glow
+- `AnimatedSection` — Framer Motion viewport reveal wrapper
+- `SectionHeader` — Standardized section heading with label + title + gold rule
+- `animationDefaults` — Common easing constants
+
+**GSAP Registration:**
+- `gsap.registerPlugin(ScrollTrigger)` — called once at module level
 
 ---
 
@@ -522,8 +591,8 @@ Lenis smooth scroll provider. Wraps `children` in a Lenis instance.
 
 | Class | Purpose |
 |-------|---------|
-| `.btn-primary` | Maroon button with gold text |
-| `.btn-gold` | Gold button with maroon text |
+| `.btn-primary` | Maroon button with gold text + pseudo-overlay hover |
+| `.btn-gold` | Gold button with maroon text + pseudo-overlay hover |
 | `.card` | White card with shadow and maroon left border |
 | `.card-maroon` | Maroon background card |
 | `.tab-button` | Section filter tabs with gold underline indicator |
@@ -534,9 +603,22 @@ Lenis smooth scroll provider. Wraps `children` in a Lenis instance.
 | `.timeline-dot` | Circular step indicator |
 | `.timeline-year` | Year label under dot |
 | `.timeline-content-card` | Content card with shadow |
-| `.section-divider` | Gradient line with icon between sections |
 | `.scroll-progress` | Fixed top gradient bar |
 | `.nav-link` | Navigation link with hover gold color |
+| `.grain-overlay` | Fixed full-screen SVG noise texture (z-index 99999, 2% opacity) |
+| `.vignette-overlay` | Fixed full-screen radial vignette (transparent → black) |
+| `.glass` | Glassmorphism: backdrop-blur 20px, white bg 4% |
+| `.glass-dark` | Glassmorphism dark: backdrop-blur 20px, black bg 30% |
+| `.cinematic-divider` | 2px gradient line (transparent → maroon → gold → maroon → transparent) |
+| `.ambient-glow` | Absolute radial blur for decorative glows |
+| `.ambient-gold` | Gold ambient glow gradient |
+| `.ambient-maroon` | Maroon ambient glow gradient |
+| `.glow-gold` | Gold box-shadow: 0 0 20px/60px |
+| `.glow-maroon` | Maroon box-shadow: 0 0 20px/60px |
+| `.text-glow-gold` | Gold text-shadow glow |
+| `.pulse-gold` | Box-shadow pulse animation (2s infinite) |
+| `.float` | Vertical float animation (3s infinite) |
+| `.glow-pulse` | Opacity pulse (3s infinite) |
 | `.font-teko` / `.font-ins-sans` / `.font-tamil` | Font family utilities |
 | `.bg-maroon` / `.bg-manjal` / `.bg-marlot` | Background color utilities |
 | `.text-maroon` / `.text-manjal` / `.text-pale-manjal` | Text color utilities |
@@ -545,6 +627,18 @@ Lenis smooth scroll provider. Wraps `children` in a Lenis instance.
 ---
 
 ## Animation Reference
+
+### GSAP + SplitType Patterns
+
+| Pattern | Usage | Implementation |
+|---------|-------|----------------|
+| **SplitType char reveal** | Hero title | `new SplitType(el, { types: 'chars' })` + GSAP `fromTo` stagger |
+| **SplitType word reveal** | ScrollStorytelling scenes | `new SplitType(el, { types: 'words' })` + ScrollTrigger animation |
+| **ScrollTrigger pin** | ScrollStorytelling | `ScrollTrigger.create({ trigger, pin, scrub, end })` |
+| **GSAP spring** | MagneticButton | `gsap.to(el, { x, y, duration: 0.6, ease: "elastic.out(1, 0.3)" })` |
+| **Mouse-reactive glow** | HeroSection, VictoryCard | `gsap.to(glow, { x, y })` on `pointermove` |
+| **Link hover spring** | Footer | `gsap.to(link, { color, x: 6, duration: 0.3, ease: "back.out(2)" })` |
+| **Scene progress** | ScrollStorytelling | `useProgress()` from `@react-three` / manual ScrollTrigger tracking |
 
 ### Framer Motion Patterns
 
@@ -611,6 +705,15 @@ const smoothEase: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94];
 | Join right column | 0.7s | 0.3s | smoothEase |
 | CardNav content | 0.2s | — | — |
 | CardNav cards | 0.3s | 0.08 + i*0.06s | custom |
+| CardNav hamburger | 0.25s | — | ease |
+| IntroLoader monogram | 0.8s | — | smoothEase |
+| IntroLoader flare | 1.8s | — | easeInOut |
+| IntroLoader bar | 2.5s | — | easeOut |
+| IntroLoader exit | 0.6s | 2.6s | smoothEase |
+| SplitType chars (Hero) | 0.4s | i*0.02s | easeOut |
+| MagneticButton spring | 0.6s | — | elastic.out(1, 0.3) |
+| GlowCard tilt | 0.3s | — | easeOut |
+| Footer link spring | 0.3s | — | back.out(2) |
 | Footer social hover | 0.2s | — | — |
 | Footer link hover | 0.3s | — | — |
 
@@ -621,6 +724,9 @@ const smoothEase: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94];
 | `pulse-gold` | box-shadow 0→12px→0 | 2s | infinite | Timeline active dot, constituency pulse |
 | `scroll-bounce` | translateY 0→6px→0 | 1.8s | infinite | Scroll indicator |
 | `pulse-monogram` | opacity 0.15→0.3→0.15 | 1.5s | infinite | Loading state |
+| `float` | translateY 0→(-10px)→0 | 3s | infinite | Decorative elements |
+| `glow-pulse` | opacity 0.4→0.8→0.4 | 3s | infinite | Ambient glows |
+| `scanline` | translateY -100%→100vh | 8s | infinite | Cinematic scanline effect (optional) |
 
 ---
 
@@ -628,28 +734,31 @@ const smoothEase: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94];
 
 ### Home Page Scene Order
 
-1. **Navbar** (CardNav) — fixed top, z-index 9999, 96px spacer below
-2. **HeroSection** — 100vh, full-screen with parallax
-3. **VictoryCard** — maroon gradient, stats + image
-4. **SectionDivider** — 1px gold gradient line
-5. **AboutSection** — white bg, portrait + bio
-6. **SectionDivider**
-7. **Timeline** — Stepper with auto-advance
-8. **SectionDivider**
-9. **DistrictMap** — map + works tabs
-10. **SectionDivider**
-11. **AnnouncementsList** — filterable cards
-12. **SectionDivider**
-13. **SocialFeed** — two social columns
-14. **SectionDivider**
-15. **JoinSection** — dark bg, form + CTA
-16. **Footer** — dark maroon, 4 columns
+1. **IntroLoader** — 3.2s cinematic intro (VB monogram, gold flare, loading bar)
+2. **Grain Overlay** — fixed SVG noise (2% opacity, z-index 99999)
+3. **Vignette Overlay** — fixed radial gradient (z-index 99998)
+4. **CardNav** — fixed top, z-index 99999, 96px spacer below
+5. **HeroSection** — 100vh, SplitType char reveal, mouse-reactive glow
+6. **VictoryCard** — maroon gradient, GSAP interactive glow overlay, counters
+7. **CinematicDivider** — 2px gold gradient line
+8. **AboutSection** — white bg, portrait + bio
+9. **CinematicDivider**
+10. **ScrollStorytelling** — 4-scene pinned GSAP SplitType narrative
+11. **CinematicDivider**
+12. **DistrictMap** — map + works tabs
+13. **CinematicDivider**
+14. **AnnouncementsList** — filterable cards
+15. **CinematicDivider**
+16. **SocialFeed** — two social columns
+17. **CinematicDivider**
+18. **JoinSection** — dark bg, form + CTA
+19. **Footer** — dark maroon, 4 columns, GSAP link animations
 
-### SectionDivider Component
+### CinematicDivider Component
 ```
-1px gradient line: transparent → maroon 12% → gold 50% → maroon 80% → transparent
+2px gradient line: transparent → maroon 20% → gold 50% → maroon 80% → transparent
 ```
-Rendered between each major section on the home page for visual separation.
+Rendered between every major section across ALL pages (home + subpages).
 
 ---
 
@@ -872,6 +981,22 @@ npm run start      # Production server
 | Image sizes optimization | Perf warnings fixed | `HeroSection.tsx`, `VictoryCard.tsx`, `CardNav.tsx`, `Footer.tsx` |
 | Stepper transparent fix | Framer Motion warning | `Stepper.tsx` |
 | Background image fix | 404 error | `JoinSection.tsx` |
+| Cinematic upgrade v2 | Premium feel, SplitType, GSAP scroll narrative | New: `IntroLoader.tsx`, `ScrollStorytelling.tsx`, `lib/animation.tsx` |
+| Intro loader | 3.2s VB monogram reveal with gold flare | `IntroLoader.tsx` |
+| Scroll storytelling | 4-scene GSAP SplitType pinned narrative | `ScrollStorytelling.tsx` |
+| GSAP animation library | Shared MagneticButton, GlowCard, ScrollTrigger hooks | `lib/animation.tsx` |
+| Hero SplitType upgrade | Char-by-char text reveal + mouse-reactive glow | `HeroSection.tsx` |
+| VictoryCard GSAP glow | Interactive mouse-reactive glow overlay | `VictoryCard.tsx` |
+| Footer GSAP animations | Color + x spring on link hover, ambient radial glows | `Footer.tsx` |
+| Cinematic CSS system | Grain, vignette, glassmorphism, ambient glows, dividers, buttons | `globals.css` |
+| Global grain + vignette | Fixed overlays on all pages | `globals.css`, `page.tsx` |
+| `lib/animation.ts` → `.tsx` | JSX parse error fix | `lib/animation.tsx` |
+| CardNav z-index fix | `9999` → `99999` to stay above overlays | `CardNav.css` |
+| CardNav position fix | `top: 1.5em` → `top: 0` with `padding-top: 0.75em` | `CardNav.css` |
+| CardNav overflow fix | Removed `overflow: hidden` to prevent content clipping | `CardNav.css` |
+| Cinematic dividers on subpages | Visual consistency across all routes | All `*/page.tsx` files |
+| Grain + vignette on subpages | Cinematic consistency across all routes | `about/`, `constituency/`, `contact/`, `gallery/`, `updates/` page.tsx |
+| Removed unused imports | Code cleanup | `page.tsx`, `contact/page.tsx`, `constituency/page.tsx` |
 
 ---
 
@@ -884,15 +1009,22 @@ npm run start      # Production server
 - [x] All sub-pages read language from context
 
 ### VISUAL
+- [x] IntroLoader plays on first visit (3.2s VB monogram + gold flare)
+- [x] Grain overlay visible (SVG noise, 2% opacity)
+- [x] Vignette overlay visible (radial darken at edges)
+- [x] Hero SplitType char reveal animates on load
+- [x] Hero mouse-reactive radial glow follows cursor
+- [x] VictoryCard GSAP glow overlay reacts to mouse
+- [x] ScrollStorytelling 4 scenes pin + split reveals work
 - [x] Scroll progress bar visible on all pages
 - [x] Hero parallax works on desktop and mobile
 - [x] Victory counters animate up from 0 on first scroll
 - [x] Stepper timeline auto-advances every 3.5s
 - [x] Map Erode marker pulses correctly
-- [x] CardNav opens/closes with AnimatePresence
-- [x] Footer 4-column grid aligns properly
+- [x] CardNav opens/closes with AnimatePresence (z-index above overlays)
+- [x] Footer 4-column grid aligns properly, GSAP link animations work
 - [x] No horizontal overflow on any page
-- [x] Section dividers visible between home sections
+- [x] Cinematic dividers visible between sections on ALL pages
 
 ### PERFORMANCE
 - [x] Fonts loaded with `display: swap`

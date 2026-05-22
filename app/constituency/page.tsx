@@ -2,11 +2,10 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import Navbar from "@/components/Navbar";
+import CardNav from "@/components/CardNav";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/lib/LanguageContext";
 import { translations } from "@/lib/translations";
-import { constituencyAreas } from "@/lib/data";
 import { Icons } from "@/components/Icons";
 
 const smoothEase = [0.25, 0.46, 0.45, 0.94] as [number, number, number, number];
@@ -173,10 +172,13 @@ export default function ConstituencyPage() {
 
   return (
     <>
-      <Navbar />
+      <div className="grain-overlay" />
+      <div className="vignette-overlay" />
+      <CardNav />
       <main style={{ background: "var(--white)" }}>
         {/* Parallax SVG Map Hero */}
         <TNConstituencyMap />
+        <div className="cinematic-divider" />
 
         {/* Section 1: Overview & Wards Grid */}
         <section className="section-container feeds-padding">
@@ -255,6 +257,7 @@ export default function ConstituencyPage() {
             })}
           </div>
         </section>
+        <div className="cinematic-divider" />
 
         {/* Section 2: Development Work with Filter Tabs */}
         <section className="relative" style={{ background: "#f8f9fa" }}>
@@ -368,6 +371,7 @@ export default function ConstituencyPage() {
             </div>
           </div>
         </section>
+        <div className="cinematic-divider" />
 
         {/* Section 3: Key Statistics Grid */}
         <section className="section-container feeds-padding">
@@ -428,6 +432,7 @@ export default function ConstituencyPage() {
           </div>
         </section>
       </main>
+      <div className="cinematic-divider" />
       <Footer />
     </>
   );

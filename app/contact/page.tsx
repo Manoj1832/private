@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Navbar from "@/components/Navbar";
+import CardNav from "@/components/CardNav";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/lib/LanguageContext";
 import { translations } from "@/lib/translations";
-import { siteConfig, socialLinks } from "@/lib/data";
+import { socialLinks } from "@/lib/data";
 
 const smoothEase = [0.25, 0.46, 0.45, 0.94] as [number, number, number, number];
 
@@ -55,7 +55,9 @@ export default function ContactPage() {
 
   return (
     <>
-      <Navbar />
+      <div className="grain-overlay" />
+      <div className="vignette-overlay" />
+      <CardNav />
       <main style={{ background: "var(--white)" }}>
         {/* Page Hero */}
         <section
@@ -424,6 +426,7 @@ export default function ContactPage() {
           </div>
         </section>
       </main>
+      <div className="cinematic-divider" />
       <Footer />
     </>
   );

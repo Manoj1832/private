@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Navbar from "@/components/Navbar";
+import CardNav from "@/components/CardNav";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/lib/LanguageContext";
 import { translations } from "@/lib/translations";
@@ -17,7 +17,9 @@ export default function AboutPage() {
 
   return (
     <>
-      <Navbar />
+      <div className="grain-overlay" />
+      <div className="vignette-overlay" />
+      <CardNav />
       <main style={{ background: "var(--white)" }}>
         {/* Page Hero */}
         <section
@@ -52,6 +54,7 @@ export default function AboutPage() {
             </h1>
           </div>
         </section>
+        <div className="cinematic-divider" />
 
         {/* Section 1: Full Biography & Pull Quote */}
         <section className="section-container feeds-padding">
@@ -236,6 +239,7 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
+        <div className="cinematic-divider" />
 
         {/* Section 3: Education & Background */}
         <section className="section-container feeds-padding">
@@ -300,6 +304,7 @@ export default function AboutPage() {
             </motion.div>
           </div>
         </section>
+        <div className="cinematic-divider" />
 
         {/* Section 4: Party Role */}
         <section className="relative overflow-hidden" style={{ background: "var(--marlot)" }}>
@@ -361,6 +366,7 @@ export default function AboutPage() {
           </div>
         </section>
       </main>
+      <div className="cinematic-divider" />
       <Footer />
     </>
   );

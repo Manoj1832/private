@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Navbar from "@/components/Navbar";
+import CardNav from "@/components/CardNav";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/lib/LanguageContext";
 import { translations } from "@/lib/translations";
@@ -150,7 +150,9 @@ export default function UpdatesPage() {
 
   return (
     <>
-      <Navbar />
+      <div className="grain-overlay" />
+      <div className="vignette-overlay" />
+      <CardNav />
       <main style={{ background: "var(--white)" }}>
         {/* Page Hero */}
         <section
@@ -411,6 +413,7 @@ export default function UpdatesPage() {
           )}
         </section>
       </main>
+      <div className="cinematic-divider" />
       <Footer />
     </>
   );
