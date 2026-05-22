@@ -1,12 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
+import gsap from "gsap";
 import { useLanguage } from "@/lib/LanguageContext";
 import { translations } from "@/lib/translations";
 import { siteConfig, footerLinks, socialLinks } from "@/lib/data";
-import Image from "next/image";
+import { MagneticButton } from "@/lib/animation";
 
 function SocialIcon({ type }: { type: string }) {
   const icons: Record<string, React.ReactNode> = {
@@ -37,16 +39,11 @@ function SocialIcon({ type }: { type: string }) {
 function FooterHeading({ children }: { children: React.ReactNode }) {
   return (
     <div className="mb-5">
-      <h4
-        className="font-teko font-bold text-base tracking-[0.25em] uppercase"
-        style={{ color: "var(--manjal)" }}
-      >
+      <h4 className="font-teko font-bold text-base tracking-[0.25em] uppercase"
+        style={{ color: "var(--manjal)", letterSpacing: "0.25em" }}>
         {children}
       </h4>
-      <div
-        className="w-8 h-[2px] mt-2"
-        style={{ background: "var(--manjal)" }}
-      />
+      <div className="w-8 h-[2px] mt-2" style={{ background: "var(--manjal)" }} />
     </div>
   );
 }
@@ -55,248 +52,158 @@ export default function Footer() {
   const { lang } = useLanguage();
   const t = translations[lang];
   const currentYear = new Date().getFullYear();
+  const footerRef = useRef<HTMLDivElement>(null);
+
+  const handleLinkEnter = (e: React.MouseEvent) => {
+    gsap.to(e.currentTarget, { color: "var(--manjal)", x: 6, duration: 0.3, ease: "power2.out" });
+  };
+  const handleLinkLeave = (e: React.MouseEvent) => {
+    gsap.to(e.currentTarget, { color: "rgba(255,255,255,0.6)", x: 0, duration: 0.3, ease: "power2.out" });
+  };
 
   return (
     <footer
+      ref={footerRef}
       className="relative w-full overflow-hidden shrink-0"
-      style={{
-        background: "#1a0a0a",
-        borderTop: "3px solid var(--manjal)",
-      }}
+      style={{ background: "#0d0505", borderTop: "2px solid var(--manjal)" }}
     >
-      {/* Noise texture overlay */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          opacity: 0.03,
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-        }}
-      />
+      {/* Noise overlay */}
+      <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.02,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+      }} />
 
-      {/* Subtle radial glow */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: `radial-gradient(ellipse at 20% 50%, rgba(255,202,0,0.04) 0%, transparent 60%),
-                            radial-gradient(ellipse at 80% 20%, rgba(92,26,27,0.3) 0%, transparent 50%)`,
-        }}
-      />
+      {/* Ambient glows */}
+      <div className="absolute top-0 left-0 w-[40vw] h-[40vw] rounded-full pointer-events-none"
+        style={{ background: "radial-gradient(circle, rgba(92,26,27,0.15) 0%, transparent 70%)", filter: "blur(80px)" }} />
+      <div className="absolute bottom-0 right-0 w-[30vw] h-[30vw] rounded-full pointer-events-none"
+        style={{ background: "radial-gradient(circle, rgba(255,202,0,0.03) 0%, transparent 70%)", filter: "blur(80px)" }} />
 
-      {/* Top decorative band */}
-      <div className="relative z-10 px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl pt-16 md:pt-20 pb-10">
-        {/* Brand row — full width */}
-        <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8 mb-14 pb-10" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-          {/* Left — Brand */}
+      <div className="relative z-10 px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl pt-20 md:pt-24 pb-10">
+        {/* Brand Row */}
+        <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-10 mb-14 pb-12"
+          style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
           <div className="flex flex-col items-center md:items-start text-center md:text-left">
             <div className="flex items-center gap-4 mb-4">
-              <div
-                className="relative overflow-hidden rounded-sm shrink-0"
-                style={{ width: 56, height: 56 }}
-              >
-                <Image
-                  src="/logo.png"
-                  alt="TVK"
-                  fill
-                  className="object-contain"
-                  sizes="56px"
-                />
+              <div className="relative overflow-hidden rounded-sm shrink-0" style={{ width: 60, height: 60 }}>
+                <Image src="/logo.png" alt="TVK" fill className="object-contain" sizes="60px" />
               </div>
               <div className="flex flex-col">
-                <span
-                  className="font-teko font-bold text-3xl tracking-wide leading-none"
-                  style={{ color: "#fff" }}
-                >
+                <span className="font-teko font-bold text-3xl tracking-wide leading-none" style={{ color: "#fff" }}>
                   {lang === "ta" ? siteConfig.nameTamil : siteConfig.name.toUpperCase()}
                 </span>
-                <span
-                  className="font-teko text-sm tracking-[0.2em] uppercase mt-1"
-                  style={{ color: "var(--manjal)" }}
-                >
+                <span className="font-teko text-sm tracking-[0.2em] uppercase mt-1" style={{ color: "var(--manjal)" }}>
                   {lang === "ta" ? "கைத்தறி மற்றும் ஜவுளித்துறை அமைச்சர்" : "Minister for Handlooms & Textiles"}
                 </span>
               </div>
             </div>
-            <p
-              className="text-base leading-relaxed max-w-md"
-              style={{ color: "rgba(255,255,255,0.5)", fontStyle: "italic", letterSpacing: "0.05em" }}
-            >
-              {lang === "ta" ? "மக்களின் குரல் — சட்டமன்றத்தில். ஈரோடு கிழக்கு தொகுதியின் முன்னேற்றத்திற்காக அர்ப்பணிக்கப்பட்டவர்." : "The People's Voice in the Assembly. Dedicated to the progress of Erode East constituency."}
+            <p className="text-base leading-relaxed max-w-md"
+              style={{ color: "rgba(255,255,255,0.45)", fontStyle: "italic", letterSpacing: "0.05em" }}>
+              {lang === "ta" ? "மக்களின் குரல் — சட்டமன்றத்தில். ஈரோடு கிழக்கு தொகுதியின் முன்னேற்றத்திற்காக அர்ப்பணிக்கப்பட்டவர்." : "The People's Voice in the Assembly. Dedicated to the progress of Erode East."}
             </p>
           </div>
 
-          {/* Right — Social Icons */}
           <div className="flex flex-col items-center md:items-end gap-3">
-            <span
-              className="font-teko text-xs tracking-[0.2em] uppercase"
-              style={{ color: "rgba(255,255,255,0.35)" }}
-            >
-              {lang === "ta" ? "எங்களை பின்தொடரவும்" : "FOLLOW US"}
+            <span className="font-teko text-xs tracking-[0.2em] uppercase" style={{ color: "rgba(255,255,255,0.35)" }}>
+              {lang === "ta" ? "எங்களை பின்தொடரவும்" : "FOLLOW"}
             </span>
-            <ul className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
               {[
                 { type: "instagram", url: socialLinks.instagram },
                 { type: "facebook", url: socialLinks.facebook },
                 { type: "linkedin", url: socialLinks.linkedin },
                 { type: "youtube", url: socialLinks.youtube },
-              ].map((social) => (
-                <li key={social.type}>
-                  <motion.a
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{ scale: 1.15 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex items-center justify-center rounded-full transition-all duration-300"
-                    style={{
-                      width: 48,
-                      height: 48,
-                      background: "rgba(255,255,255,0.06)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: "rgba(255,255,255,0.5)",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.color = "var(--manjal)";
-                      e.currentTarget.style.borderColor = "rgba(255,202,0,0.4)";
-                      e.currentTarget.style.background = "rgba(255,202,0,0.08)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.color = "rgba(255,255,255,0.5)";
-                      e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
-                      e.currentTarget.style.background = "rgba(255,255,255,0.06)";
-                    }}
-                  >
-                    <SocialIcon type={social.type} />
-                  </motion.a>
-                </li>
+              ].map((s) => (
+                <motion.a
+                  key={s.type} href={s.url} target="_blank" rel="noopener noreferrer"
+                  whileHover={{ scale: 1.1 }}
+                  className="flex items-center justify-center rounded-full transition-all duration-300"
+                  style={{
+                    width: 48, height: 48,
+                    background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
+                    color: "rgba(255,255,255,0.4)",
+                  }}
+                  onMouseEnter={(e) => {
+                    gsap.to(e.currentTarget, {
+                      background: "rgba(255,202,0,0.1)", borderColor: "rgba(255,202,0,0.3)",
+                      color: "var(--manjal)", duration: 0.3, ease: "power2.out",
+                    });
+                  }}
+                  onMouseLeave={(e) => {
+                    gsap.to(e.currentTarget, {
+                      background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)",
+                      color: "rgba(255,255,255,0.4)", duration: 0.3, ease: "power2.out",
+                    });
+                  }}
+                >
+                  <SocialIcon type={s.type} />
+                </motion.a>
               ))}
-            </ul>
+            </div>
           </div>
         </div>
 
         {/* 4-Column Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10 lg:gap-14">
-          {/* Col 1 — Quick Links */}
-          <div>
-            <FooterHeading>{t.footer_col1_title}</FooterHeading>
-            <ul className="flex flex-col gap-3" style={{ listStyle: "none" }}>
-              {footerLinks.quickLinks.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-base no-underline transition-all duration-300 block"
-                    style={{ color: "rgba(255,255,255,0.6)" }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.color = "var(--manjal)";
-                      e.currentTarget.style.paddingLeft = "6px";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.color = "rgba(255,255,255,0.6)";
-                      e.currentTarget.style.paddingLeft = "0";
-                    }}
-                  >
-                    {lang === "ta" ? t[link.label as keyof typeof t] : link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {[
+            { heading: t.footer_col1_title, links: footerLinks.quickLinks },
+            { heading: t.footer_col2_title, links: footerLinks.resources },
+          ].map((col) => (
+            <div key={col.heading}>
+              <FooterHeading>{col.heading}</FooterHeading>
+              <ul className="flex flex-col gap-3" style={{ listStyle: "none" }}>
+                {col.links.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      onMouseEnter={handleLinkEnter}
+                      onMouseLeave={handleLinkLeave}
+                      className="text-base no-underline block"
+                      style={{ color: "rgba(255,255,255,0.6)", fontFamily: "var(--font-ins-sans)", transition: "none" }}
+                    >
+                      {lang === "ta" ? t[link.label as keyof typeof t] : link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
 
-          {/* Col 2 — Resources */}
-          <div>
-            <FooterHeading>{t.footer_col2_title}</FooterHeading>
-            <ul className="flex flex-col gap-3" style={{ listStyle: "none" }}>
-              {footerLinks.resources.map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    target={link.href.startsWith("http") ? "_blank" : undefined}
-                    rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                    className="text-base no-underline transition-all duration-300 block"
-                    style={{ color: "rgba(255,255,255,0.6)" }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.color = "var(--manjal)";
-                      e.currentTarget.style.paddingLeft = "6px";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.color = "rgba(255,255,255,0.6)";
-                      e.currentTarget.style.paddingLeft = "0";
-                    }}
-                  >
-                    {lang === "ta" ? t[link.label as keyof typeof t] : link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Col 3 — Connect */}
+          {/* Connect */}
           <div>
             <FooterHeading>{t.footer_col3_title}</FooterHeading>
             <div className="flex flex-col gap-5">
-              {/* Email */}
-              <a
-                href="mailto:mla.vijaybalaji@gmail.com"
-                className="text-base no-underline transition-colors duration-300"
-                style={{ color: "rgba(255,255,255,0.6)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--manjal)")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.6)")}
-              >
-                <span
-                  className="block text-xs uppercase tracking-wider mb-1"
-                  style={{ color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-teko)" }}
-                >
-                  Email
-                </span>
+              <a href="mailto:mla.vijaybalaji@gmail.com"
+                onMouseEnter={handleLinkEnter} onMouseLeave={handleLinkLeave}
+                className="text-base no-underline block" style={{ color: "rgba(255,255,255,0.6)", transition: "none" }}>
+                <span className="block text-xs uppercase tracking-wider mb-1" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-teko)" }}>Email</span>
                 mla.vijaybalaji@gmail.com
               </a>
-
-              {/* Office Location */}
-              <div
-                className="rounded-sm p-4"
-                style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                }}
-              >
-                <span
-                  className="block text-xs uppercase tracking-wider mb-2"
-                  style={{ color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-teko)" }}
-                >
-                  Office
-                </span>
-                <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>
-                  Erode East Constituency Office<br />
-                  Erode, Tamil Nadu — 638001
+              <div className="rounded-sm p-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                <span className="block text-xs uppercase tracking-wider mb-2" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-teko)" }}>Office</span>
+                <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>
+                  Erode East Constituency Office<br />Erode, Tamil Nadu — 638001
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Col 4 — Office Hours */}
+          {/* Office Hours */}
           <div>
-            <FooterHeading>{lang === "ta" ? "அலுவலக நேரம்" : "OFFICE HOURS"}</FooterHeading>
+            <FooterHeading>{lang === "ta" ? "அலுவலக நேரம்" : "HOURS"}</FooterHeading>
             <div className="flex flex-col gap-3">
-              <div className="flex justify-between items-center text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
-                <span>Mon — Fri</span>
-                <span style={{ color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-teko)", fontSize: "15px" }}>10:00 — 17:00</span>
-              </div>
-              <div className="flex justify-between items-center text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
-                <span>Saturday</span>
-                <span style={{ color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-teko)", fontSize: "15px" }}>10:00 — 13:00</span>
-              </div>
-              <div className="flex justify-between items-center text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
-                <span>Sunday</span>
-                <span style={{ color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-teko)", fontSize: "15px" }}>Closed</span>
-              </div>
-              <div
-                className="mt-3 p-3 rounded-sm text-center"
-                style={{
-                  background: "rgba(255,202,0,0.08)",
-                  border: "1px solid rgba(255,202,0,0.15)",
-                }}
-              >
+              {[
+                { label: "Mon — Fri", value: "10:00 — 17:00" },
+                { label: "Saturday", value: "10:00 — 13:00" },
+                { label: "Sunday", value: "Closed", muted: true },
+              ].map((row) => (
+                <div key={row.label} className="flex justify-between items-center text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>
+                  <span>{row.label}</span>
+                  <span style={{ color: row.muted ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.6)", fontFamily: "var(--font-teko)", fontSize: "15px" }}>{row.value}</span>
+                </div>
+              ))}
+              <div className="mt-2 p-3 rounded-sm text-center" style={{ background: "rgba(255,202,0,0.06)", border: "1px solid rgba(255,202,0,0.12)" }}>
                 <p className="text-xs" style={{ color: "var(--manjal)", fontFamily: "var(--font-teko)", letterSpacing: "0.1em" }}>
-                  {lang === "ta" ? "அவசர தொடர்புக்கு Instagram மூலம் அணுகவும்" : "For urgent matters, reach via Instagram"}
+                  {lang === "ta" ? "அவசர தொடர்புக்கு Instagram மூலம் அணுகவும்" : "Urgent? Reach via Instagram"}
                 </p>
               </div>
             </div>
@@ -304,27 +211,14 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Bottom Bar */}
+      {/* Bottom */}
       <div className="relative z-10 px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
-        <div
-          className="w-full h-[1px] mb-8"
-          style={{
-            background: "linear-gradient(90deg, transparent 0%, var(--manjal) 50%, transparent 100%)",
-            opacity: 0.3,
-          }}
-        />
-
+        <div className="w-full h-[1px] mb-8" style={{ background: "linear-gradient(90deg, transparent, var(--manjal), transparent)", opacity: 0.2 }} />
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 pb-10 md:pb-12">
-          <p
-            className="text-sm text-center md:text-left"
-            style={{ color: "rgba(255,255,255,0.35)" }}
-          >
+          <p className="text-sm text-center md:text-left" style={{ color: "rgba(255,255,255,0.3)" }}>
             © {currentYear} {lang === "ta" ? siteConfig.nameTamil : siteConfig.name} — {lang === "ta" ? translations.ta.victory_constituency : siteConfig.constituency}, {siteConfig.state}.
           </p>
-          <p
-            className="text-sm text-center md:text-right"
-            style={{ color: "rgba(255,255,255,0.25)", fontStyle: "italic" }}
-          >
+          <p className="text-sm text-center md:text-right" style={{ color: "rgba(255,255,255,0.2)", fontStyle: "italic" }}>
             {lang === "ta" ? "மக்களுக்காக பெருமையுடன் உருவாக்கப்பட்டது." : "Built with pride for the people."}
           </p>
         </div>

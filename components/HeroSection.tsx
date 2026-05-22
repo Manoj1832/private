@@ -1,7 +1,9 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import gsap from "gsap";
+import SplitType from "split-type";
 import { useLanguage } from "@/lib/LanguageContext";
 import { translations } from "@/lib/translations";
 import Image from "next/image";
@@ -12,6 +14,11 @@ export default function HeroSection() {
   const { lang } = useLanguage();
   const t = translations[lang];
   const containerRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const subtitleRef = useRef<HTMLParagraphElement>(null);
+  const taglineRef = useRef<HTMLParagraphElement>(null);
+  const glowRef = useRef<HTMLDivElement>(null);
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
@@ -21,16 +28,69 @@ export default function HeroSection() {
   const textY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
 
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const ctx = gsap.context(() => {
+      if (titleRef.current) {
+        const split = new SplitType(titleRef.current, { types: "lines,words,chars" });
+        gsap.fromTo(
+          split.chars,
+          { opacity: 0, y: 60, rotateX: 30 },
+          {
+            opacity: 1,
+            y: 0,
+            rotateX: 0,
+            duration: 1.2,
+            ease: "power4.out",
+            stagger: 0.02,
+            delay: 0.5,
+          }
+        );
+      }
+      if (subtitleRef.current) {
+        const split = new SplitType(subtitleRef.current, { types: "lines,words" });
+        gsap.fromTo(
+          split.words,
+          { opacity: 0, y: 20 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "power3.out",
+            stagger: 0.04,
+            delay: 1.2,
+          }
+        );
+      }
+      if (taglineRef.current) {
+        gsap.fromTo(
+          taglineRef.current,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 1, delay: 1.8, ease: "power3.out" }
+        );
+      }
+    }, containerRef);
+    return () => ctx.revert();
+  }, []);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!glowRef.current || !containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    glowRef.current.style.background = `radial-gradient(circle at ${x}% ${y}%, rgba(255,202,0,0.06) 0%, transparent 60%)`;
+  };
+
   return (
     <section
       ref={containerRef}
       id="hero"
-      className="relative w-full overflow-hidden"
-      style={{ height: "100vh", minHeight: 600 }}
+      className="relative w-full overflow-hidden cursor-default"
+      style={{ height: "100vh", minHeight: 650 }}
+      onMouseMove={handleMouseMove}
     >
       {/* Background Layer */}
       <motion.div className="absolute inset-0 z-0" style={{ y: bgY }}>
-        {/* Desktop: video background */}
         <video
           className="absolute inset-0 w-full h-full object-cover hidden md:block"
           src="/background-video.mp4"
@@ -38,9 +98,8 @@ export default function HeroSection() {
           muted
           loop
           playsInline
-          style={{ filter: "brightness(0.35) saturate(1.1)" }}
+          style={{ filter: "brightness(0.3) saturate(1.2)" }}
         />
-        {/* Mobile: image background */}
         <div className="absolute inset-0 w-full h-full md:hidden">
           <Image
             src="/cm-vijay-and-mla.jpeg"
@@ -48,23 +107,39 @@ export default function HeroSection() {
             fill
             priority
             className="object-cover"
-            sizes="(max-width: 768px) 100vw"
-            style={{ filter: "brightness(0.35) saturate(1.1)" }}
+            sizes="100vw"
+            style={{ filter: "brightness(0.3) saturate(1.2)" }}
           />
         </div>
-        {/* Overlay gradient */}
+        {/* Deep gradient overlay */}
         <div
           className="absolute inset-0"
           style={{
-            background: `linear-gradient(180deg, rgba(26,5,6,0.7) 0%, rgba(44,10,10,0.5) 40%, rgba(26,5,6,0.85) 100%)`,
+            background: `
+              linear-gradient(180deg, rgba(10,3,4,0.85) 0%, rgba(26,5,6,0.6) 40%, rgba(10,3,4,0.9) 100%)
+            `,
           }}
         />
-        {/* Gold top line */}
+        {/* Mouse-reactive glow */}
+        <div
+          ref={glowRef}
+          className="absolute inset-0 pointer-events-none transition-all duration-300"
+          style={{ transition: "background 0.1s ease" }}
+        />
+        {/* Gold top beam */}
         <div
           className="absolute top-0 left-0 w-full h-[1px]"
           style={{
             background: "linear-gradient(90deg, transparent, var(--manjal), transparent)",
-            opacity: 0.4,
+            opacity: 0.5,
+          }}
+        />
+        {/* Side light beam */}
+        <div
+          className="absolute top-0 right-0 w-[30vw] h-full pointer-events-none"
+          style={{
+            background: "linear-gradient(180deg, rgba(255,202,0,0.04) 0%, transparent 70%)",
+            filter: "blur(60px)",
           }}
         />
       </motion.div>
@@ -74,157 +149,116 @@ export default function HeroSection() {
         className="relative z-10 h-full flex items-center justify-center px-4 md:px-8 pt-20 pb-16"
         style={{ y: textY, opacity }}
       >
-        <div className="section-container flex flex-col items-center justify-center w-full h-full max-h-[80vh]">
-          {/* Centered Text Block */}
-          <div className="flex flex-col items-center text-center max-w-3xl">
-            {/* Gold horizontal rule above title */}
-            <motion.div
-              initial={{ scaleX: 0, opacity: 0 }}
-              animate={{ scaleX: 1, opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.2, ease: smoothEase }}
-              className="mb-6"
+        <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
+          {/* Gold rule */}
+          <motion.div
+            initial={{ scaleX: 0, opacity: 0 }}
+            animate={{ scaleX: 1, opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.1, ease: smoothEase }}
+            className="mb-8"
+            style={{
+              width: 60,
+              height: 2,
+              background: "var(--manjal)",
+              transformOrigin: "center",
+            }}
+          />
+
+          {/* Outlined title — SplitType */}
+          <h1
+            ref={titleRef}
+            className="font-bold leading-[0.9] text-transparent mb-6"
+            style={{
+              fontSize: "clamp(3.5rem, 14vw, 12rem)",
+              WebkitTextStroke: `1.5px var(--manjal)`,
+              fontWeight: 200,
+              letterSpacing: "0.02em",
+              fontFamily: "var(--font-teko)",
+            }}
+          >
+            {t.hero_place_line1} {t.hero_place_line2}
+          </h1>
+
+          {/* Name block */}
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <span style={{ color: "var(--manjal)", fontSize: "clamp(12px, 1.5vw, 16px)", opacity: 0.5 }}>━━━</span>
+            <h2
+              className="font-bold uppercase tracking-widest"
               style={{
-                width: 40,
-                height: 2,
-                background: "var(--manjal)",
-                transformOrigin: "center",
-              }}
-            />
-
-            {/* Large outlined "ERODE EAST" */}
-            <div className="overflow-hidden mb-6">
-              <motion.h1
-                className="font-bold leading-[0.9] text-transparent"
-                style={{
-                  fontSize: "clamp(3rem, 12vw, 10rem)",
-                  WebkitTextStroke: lang === "ta" ? "1px var(--manjal)" : "1px var(--manjal)",
-                  fontWeight: 300,
-                  letterSpacing: lang === "ta" ? "0.02em" : "0.02em",
-                  fontFamily: "var(--font-teko)",
-                }}
-              >
-                <motion.span
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.3, ease: smoothEase }}
-                  className="block"
-                >
-                  {t.hero_place_line1}
-                </motion.span>
-                <motion.span
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.45, ease: smoothEase }}
-                  className="block"
-                >
-                  {t.hero_place_line2}
-                </motion.span>
-              </motion.h1>
-            </div>
-
-            {/* Name block with gold dashes */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.65, ease: smoothEase }}
-              className="mb-5"
-            >
-              <div className="flex items-center justify-center gap-3 mb-2">
-                <span style={{ color: "var(--manjal)", fontSize: "clamp(10px, 1.5vw, 14px)", opacity: 0.6 }}>──</span>
-                <h2
-                  className="font-bold uppercase tracking-wider"
-                  style={{
-                    fontSize: "clamp(1.25rem, 3vw, 2rem)",
-                    color: "#fff",
-                    fontFamily: lang === "ta" ? "var(--font-tamil)" : "var(--font-teko)",
-                  }}
-                >
-                  {lang === "ta" ? t.hero_name_tamil : t.hero_name}
-                </h2>
-                <span style={{ color: "var(--manjal)", fontSize: "clamp(10px, 1.5vw, 14px)", opacity: 0.6 }}>──</span>
-              </div>
-
-              {/* Minister title */}
-              <p
-                className="font-medium tracking-[0.15em] uppercase"
-                style={{
-                  color: "var(--manjal)",
-                  fontSize: "clamp(11px, 1.8vw, 16px)",
-                  fontFamily: lang === "ta" ? "var(--font-tamil)" : "var(--font-teko)",
-                  lineHeight: 1.4,
-                }}
-              >
-                {lang === "ta" ? t.hero_role_tamil : t.hero_role}
-              </p>
-              <p
-                className="tracking-[0.12em] uppercase mt-0.5"
-                style={{
-                  color: "rgba(255,255,255,0.45)",
-                  fontSize: "clamp(10px, 1.4vw, 13px)",
-                  fontFamily: "var(--font-teko)",
-                }}
-              >
-                {lang === "ta" ? "தமிழ்நாடு அரசு" : "Tamil Nadu"}
-              </p>
-            </motion.div>
-
-            {/* Tagline - italic, light, spaced */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.85, ease: smoothEase }}
-              className="mb-10"
-              style={{
-                color: "rgba(255,255,255,0.85)",
-                fontSize: "clamp(13px, 1.8vw, 17px)",
-                fontStyle: "italic",
-                fontWeight: 300,
-                letterSpacing: "0.15em",
-                fontFamily: lang === "ta" ? "var(--font-tamil)" : "var(--font-ins-sans)",
+                fontSize: "clamp(1.25rem, 3vw, 2.25rem)",
+                color: "#fff",
+                fontFamily: lang === "ta" ? "var(--font-tamil)" : "var(--font-teko)",
               }}
             >
-              {lang === "ta" ? "ஈரோடு கிழக்கிற்கு சேவை. தமிழ்நாட்டை வடிவமைத்தல்." : "Serving Erode East. Shaping Tamil Nadu."}
-            </motion.p>
+              {lang === "ta" ? t.hero_name_tamil : t.hero_name}
+            </h2>
+            <span style={{ color: "var(--manjal)", fontSize: "clamp(12px, 1.5vw, 16px)", opacity: 0.5 }}>━━━</span>
           </div>
+
+          {/* Subtitle */}
+          <p
+            ref={subtitleRef}
+            className="font-medium tracking-[0.2em] uppercase"
+            style={{
+              color: "var(--manjal)",
+              fontSize: "clamp(12px, 1.8vw, 18px)",
+              fontFamily: lang === "ta" ? "var(--font-tamil)" : "var(--font-teko)",
+              lineHeight: 1.4,
+            }}
+          >
+            {lang === "ta" ? t.hero_role_tamil : t.hero_role}
+          </p>
+          <p
+            className="tracking-[0.15em] uppercase mt-1"
+            style={{
+              color: "rgba(255,255,255,0.35)",
+              fontSize: "clamp(10px, 1.4vw, 13px)",
+              fontFamily: "var(--font-teko)",
+            }}
+          >
+            {lang === "ta" ? "தமிழ்நாடு அரசு" : "GOVERNMENT OF TAMIL NADU"}
+          </p>
+
+          {/* Tagline */}
+          <p
+            ref={taglineRef}
+            className="mt-8 font-light"
+            style={{
+              color: "rgba(255,255,255,0.7)",
+              fontSize: "clamp(13px, 1.8vw, 17px)",
+              fontStyle: "italic",
+              letterSpacing: "0.12em",
+              fontFamily: lang === "ta" ? "var(--font-tamil)" : "var(--font-ins-sans)",
+            }}
+          >
+            {lang === "ta" ? "ஈரோடு கிழக்கிற்கு சேவை. தமிழ்நாட்டை வடிவமைத்தல்." : "Serving Erode East. Shaping Tamil Nadu."}
+          </p>
         </div>
 
         {/* Scroll Indicator */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.5, duration: 0.6 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          transition={{ delay: 2.5, duration: 0.6 }}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3"
         >
           <span
-            className="tracking-[0.35em] uppercase"
-            style={{
-              color: "rgba(255,255,255,0.35)",
-              fontFamily: "var(--font-teko)",
-              fontSize: "9px",
-            }}
+            className="tracking-[0.4em] uppercase text-[9px]"
+            style={{ color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-teko)" }}
           >
             {t.hero_scroll}
           </span>
           <motion.svg
-            width="18"
-            height="18"
-            viewBox="0 0 20 20"
+            width="16"
+            height="24"
+            viewBox="0 0 16 24"
             fill="none"
-            style={{ color: "var(--manjal)", opacity: 0.5 }}
+            style={{ color: "var(--manjal)", opacity: 0.4 }}
             animate={{ y: [0, 6, 0] }}
-            transition={{
-              duration: 1.8,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
           >
-            <path
-              d="M10 3L10 17M10 17L4 11M10 17L16 11"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
+            <rect x="1" y="1" width="14" height="22" rx="7" stroke="currentColor" strokeWidth="1.5" />
+            <circle cx="8" cy="8" r="2" fill="currentColor" />
           </motion.svg>
         </motion.div>
       </motion.div>
